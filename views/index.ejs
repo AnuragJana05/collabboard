@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CollabBoard - Real-time Collaborative Whiteboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="page-glow glow-1"></div>
+  <div class="page-glow glow-2"></div>
+
+  <div class="landing-container">
+    <!-- Header / Brand -->
+    <header class="hero-header">
+      <div class="brand-badge">
+        <span class="pulse-dot"></span>
+        <span>Instant Real-Time Collaboration</span>
+      </div>
+      <h1 class="brand-title">
+        <span class="gradient-text">CollabBoard</span>
+      </h1>
+      <p class="tagline">Draw. Collaborate. Create.</p>
+      <p class="description">
+        A real-time collaborative whiteboard for friends, students, and teams. No sign-up required.
+      </p>
+    </header>
+
+    <!-- Error Alert if present -->
+    <% if (error) { %>
+      <div class="alert-banner" id="errorAlert">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+          <% if (error === 'room_not_found') { %>
+            <strong>Room not found:</strong> Room <code><%= invalidRoomId %></code> does not exist or has expired.
+          <% } else if (error === 'invalid_room_id') { %>
+            <strong>Invalid Room ID:</strong> Please enter a valid room code.
+          <% } else if (error === 'empty_room_id') { %>
+            <strong>Missing Room ID:</strong> Please enter a Room ID to join.
+          <% } else { %>
+            <strong>Notice:</strong> An unexpected issue occurred. Please try again.
+          <% } %>
+        </div>
+        <button class="alert-close" onclick="this.parentElement.remove()">✕</button>
+      </div>
+    <% } %>
+
+    <!-- Action Cards Grid -->
+    <main class="actions-grid">
+      <!-- Create Room Card -->
+      <section class="action-card create-card">
+        <div class="card-icon-wrapper create-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </div>
+        <div class="card-header">
+          <h2>Create a Room</h2>
+          <p>Start a new whiteboard canvas and invite others with a link or Room ID.</p>
+        </div>
+
+        <form id="createRoomForm" action="/create-room" method="POST" class="card-form">
+          <div class="form-group">
+            <label for="createNickname">Your Nickname</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input 
+                type="text" 
+                id="createNickname" 
+                name="nickname" 
+                placeholder="e.g. Anurag" 
+                maxlength="25" 
+                required
+                autocomplete="off"
+              >
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">
+            <span>Create New Room</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </form>
+      </section>
+
+      <!-- Join Room Card -->
+      <section class="action-card join-card">
+        <div class="card-icon-wrapper join-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </div>
+        <div class="card-header">
+          <h2>Join a Room</h2>
+          <p>Enter an existing Room ID shared by your friend or teammate.</p>
+        </div>
+
+        <form id="joinRoomForm" action="/join-room" method="POST" class="card-form">
+          <div class="form-group">
+            <label for="joinNickname">Your Nickname</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <input 
+                type="text" 
+                id="joinNickname" 
+                name="nickname" 
+                placeholder="e.g. Rahul" 
+                maxlength="25" 
+                required
+                autocomplete="off"
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="joinRoomId">Room ID</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <input 
+                type="text" 
+                id="joinRoomId" 
+                name="roomId" 
+                placeholder="e.g. X7K92M" 
+                maxlength="16" 
+                required
+                autocomplete="off"
+                class="uppercase-input"
+              >
+            </div>
+            <div id="joinErrorMsg" class="field-error" style="display: none;"></div>
+          </div>
+
+          <button type="submit" id="btnJoinRoom" class="btn btn-secondary btn-block">
+            <span>Join Room</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <!-- Feature Highlights -->
+    <footer class="features-row">
+      <div class="feature-item">
+        <span class="feature-bullet">✦</span>
+        <span>Simultaneous multi-user drawing</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-bullet">✦</span>
+        <span>Precision pen & composite eraser</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-bullet">✦</span>
+        <span>Built-in real-time room chat</span>
+      </div>
+      <div class="feature-item">
+        <span class="feature-bullet">✦</span>
+        <span>Automatic state replay for new joiners</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/home.js"></script>
+</body>
+</html>

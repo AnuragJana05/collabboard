@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room <%= roomId %> - CollabBoard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/room.css">
+  <!-- Embedded room configurations for vanilla JS client -->
+  <script>
+    window.COLLAB_CONFIG = {
+      roomId: "<%= roomId %>",
+      nickname: "<%= nickname %>"
+    };
+  </script>
+</head>
+<body class="room-body">
+
+  <!-- Top Navigation Header -->
+  <header class="room-header">
+    <div class="header-left">
+      <a href="/" class="brand-link" title="Leave room and return home">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+            <path d="M2 2l7.586 7.586"/>
+            <circle cx="11" cy="11" r="2"/>
+          </svg>
+        </div>
+        <span class="brand-name">CollabBoard</span>
+      </a>
+
+      <div class="room-pill">
+        <span class="room-label">ROOM:</span>
+        <span class="room-id" id="displayRoomId"><%= roomId %></span>
+        <button id="btnCopyRoomId" class="btn-icon" title="Copy Room ID to clipboard">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span class="copy-text">Copy Room ID</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="participant-badge" id="headerParticipantsCount">
+        <span class="status-indicator"></span>
+        <span id="participantCountText">Participants: 1</span>
+      </div>
+
+      <div class="current-user-badge" id="currentUserBadge">
+        <div class="avatar-circle" id="myAvatar">?</div>
+        <span class="my-nickname" id="myNicknameDisplay"><%= nickname || 'Guest' %></span>
+      </div>
+
+      <button id="btnToggleSidebar" class="btn-icon mobile-sidebar-toggle" title="Toggle Chat & Participants">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span class="unread-dot" id="unreadDot" style="display: none;"></span>
+      </button>
+
+      <a href="/" class="btn-leave" title="Leave room">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Leave</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main App Layout -->
+  <div class="workspace-layout">
+
+    <!-- Canvas Area -->
+    <main class="canvas-workspace">
+      
+      <!-- Whiteboard Floating Toolbar -->
+      <nav class="whiteboard-toolbar">
+        <!-- Tool Selection -->
+        <div class="toolbar-group tools-group">
+          <button id="toolPen" class="tool-btn active" title="Pen Tool (P)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+            <span class="tool-tooltip">Pen</span>
+          </button>
+          <button id="toolEraser" class="tool-btn" title="Eraser Tool (E)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M20 20H7L3 16C2 15 2 13 3 12L13 2L22 11L20 20Z"/>
+              <path d="M7 16L17 6"/>
+            </svg>
+            <span class="tool-tooltip">Eraser</span>
+          </button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Color Palette -->
+        <div class="toolbar-group colors-group">
+          <div class="palette-swatches">
+            <button class="color-swatch active" data-color="#ffffff" style="background-color: #ffffff;" title="White"></button>
+            <button class="color-swatch" data-color="#f87171" style="background-color: #f87171;" title="Red"></button>
+            <button class="color-swatch" data-color="#38bdf8" style="background-color: #38bdf8;" title="Sky Blue"></button>
+            <button class="color-swatch" data-color="#4ade80" style="background-color: #4ade80;" title="Green"></button>
+            <button class="color-swatch" data-color="#facc15" style="background-color: #facc15;" title="Yellow"></button>
+            <button class="color-swatch" data-color="#c084fc" style="background-color: #c084fc;" title="Purple"></button>
+            <button class="color-swatch" data-color="#fb923c" style="background-color: #fb923c;" title="Orange"></button>
+          </div>
+          <div class="custom-color-picker-wrapper" title="Custom Color">
+            <input type="color" id="customColorPicker" value="#ffffff">
+            <span class="custom-color-icon">🎨</span>
+          </div>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Brush Size -->
+        <div class="toolbar-group size-group">
+          <div class="size-presets" id="sizePresets">
+            <button type="button" class="size-preset-btn active" data-size="4" title="Small (4px)">S</button>
+            <button type="button" class="size-preset-btn" data-size="10" title="Medium (10px)">M</button>
+            <button type="button" class="size-preset-btn" data-size="22" title="Large (22px)">L</button>
+          </div>
+          <label for="brushSizeSlider" class="size-label">
+            <span class="size-preview-dot" id="sizePreviewDot"></span>
+            <span id="brushSizeValue">4px</span>
+          </label>
+          <input type="range" id="brushSizeSlider" min="2" max="40" value="4" step="1" title="Adjust brush size">
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Canvas Actions -->
+        <div class="toolbar-group actions-group">
+          <button id="btnClearBoard" class="action-btn btn-danger-subtle" title="Clear Canvas">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+            <span class="btn-text">Clear</span>
+          </button>
+          <button id="btnDownloadBoard" class="action-btn" title="Download Canvas as PNG">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="btn-text">Export</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Canvas Container -->
+      <div class="canvas-viewport" id="canvasViewport">
+        <canvas id="whiteboardCanvas"></canvas>
+      </div>
+
+    </main>
+
+    <!-- Sidebar: Participants & Chat -->
+    <aside class="collab-sidebar" id="collabSidebar">
+      <!-- Participants Section -->
+      <section class="sidebar-section participants-section">
+        <div class="section-header">
+          <div class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Participants</span>
+            <span class="badge-count" id="sidebarParticipantsCount">1</span>
+          </div>
+        </div>
+        <div class="participants-list" id="participantsList">
+          <!-- Populated by Socket.IO -->
+        </div>
+      </section>
+
+      <!-- Chat Section -->
+      <section class="sidebar-section chat-section">
+        <div class="section-header">
+          <div class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span>Room Chat</span>
+          </div>
+        </div>
+
+        <div class="chat-messages-container" id="chatMessages">
+          <!-- Message history and system notifications -->
+        </div>
+
+        <form id="chatForm" class="chat-input-bar">
+          <input 
+            type="text" 
+            id="chatInput" 
+            placeholder="Type a message..." 
+            autocomplete="off" 
+            maxlength="500" 
+            required
+          >
+          <button type="submit" id="btnSendChat" class="btn-send-chat" title="Send message">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </form>
+      </section>
+    </aside>
+
+  </div>
+
+  <!-- Clear Board Confirmation Modal -->
+  <div class="modal-overlay" id="clearModal" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-icon-warning">⚠️</div>
+      <h3 class="modal-title">Clear Whiteboard?</h3>
+      <p class="modal-desc">
+        Are you sure you want to clear the board? This action will permanently erase all drawings for everyone in this room.
+      </p>
+      <div class="modal-actions">
+        <button id="btnCancelClear" class="btn-modal btn-modal-cancel">Cancel</button>
+        <button id="btnConfirmClear" class="btn-modal btn-modal-confirm">Clear Whiteboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Socket.IO Client Library -->
+  <script src="/js/socket.io.min.js"></script>
+  <!-- Whiteboard Room Logic -->
+  <script src="/js/room.js"></script>
+</body>
+</html>
