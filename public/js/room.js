@@ -159,49 +159,71 @@ document.addEventListener('DOMContentLoaded', () => {
   resizeCanvas();
 
   // ----------------------------------------------------
-  // 2. SOCKET.IO CONNECTION
+  // 2. REAL-TIME ENGINE (SOCKET.IO + WEBRTC P2P FALLBACK)
   // ----------------------------------------------------
-  const socket = io();
+  const statusIndicator = document.getElementById('statusIndicator') || document.querySelector('.status-indicator');
+  const connectionBanner = document.getElementById('connectionBanner');
 
-  // Join room event
-  socket.on('connect', () => {
-    socket.emit('join-room', {
-      roomId,
-      username: activeNickname
-    });
-  });
+  function updateConnectionStatus(state, modeText) {
+    if (!statusIndicator) return;
+    statusIndicator.classList.remove('status-connected', 'status-connecting', 'status-disconnected');
 
-  // Receive assigned user info
-  socket.on('user-info', (info) => {
+    if (state === 'connected') {
+      statusIndicator.classList.add('status-connected');
+      statusIndicator.title = `Connected (${modeText || 'Real-time'})`;
+      if (connectionBanner) connectionBanner.style.display = 'none';
+    } else if (state === 'connecting') {
+      statusIndicator.classList.add('status-connecting');
+      statusIndicator.title = 'Connecting to real-time server...';
+      if (participantCountText) participantCountText.textContent = 'Connecting...';
+    } else {
+      statusIndicator.classList.add('status-disconnected');
+      statusIndicator.title = 'Disconnected from real-time server';
+      if (participantCountText) participantCountText.textContent = 'Offline (1)';
+      if (connectionBanner) connectionBanner.style.display = 'flex';
+    }
+  }
+
+  // Set initial status to connecting
+  updateConnectionStatus('connecting');
+
+  // Clear whiteboard helper that works in all environments
+  function clearWhiteboard(clearedByName) {
+    drawingHistory = [];
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+    if (clearedByName) {
+      showToast(`${clearedByName} cleared the whiteboard.`);
+    }
+  }
+
+  // Core Real-Time Event Handlers
+  function handleUserInfo(info) {
     currentUser = info;
     if (myNicknameDisplay) myNicknameDisplay.textContent = info.username;
     if (myAvatar) {
       myAvatar.style.backgroundColor = info.color;
       myAvatar.textContent = info.username.charAt(0).toUpperCase();
     }
-  });
+  }
 
-  // Replay initial whiteboard state
-  socket.on('initial-board-state', (strokes) => {
+  function handleInitialBoardState(strokes) {
     drawingHistory = Array.isArray(strokes) ? strokes.slice() : [];
     redrawAllStrokes();
-  });
+  }
 
-  // Receive incoming stroke from another user
-  socket.on('draw', (data) => {
+  function handleIncomingDraw(data) {
     drawingHistory.push(data);
     renderStroke(data);
-  });
+  }
 
-  // Board cleared by a user
-  socket.on('clear-board', (data) => {
-    drawingHistory = [];
-    ctx.clearRect(0, 0, logicalWidth, logicalHeight);
-    showToast(`${data.clearedBy || 'Someone'} cleared the whiteboard.`);
-  });
+  function handleClearBoard(data) {
+    clearWhiteboard(data.clearedBy || 'Someone');
+  }
 
-  // Update participants list & count
-  socket.on('participants-update', ({ participants, count }) => {
+  function handleParticipantsUpdate({ participants, count }) {
     if (participantCountText) participantCountText.textContent = `Participants: ${count}`;
     if (sidebarParticipantsCount) sidebarParticipantsCount.textContent = `${count}`;
 
@@ -234,23 +256,379 @@ document.addEventListener('DOMContentLoaded', () => {
         participantsList.appendChild(item);
       });
     }
-  });
+  }
 
-  // User joined notification
-  socket.on('user-joined', (data) => {
+  function handleUserJoined(data) {
     showToast(`${data.username} joined the room.`);
-  });
+  }
 
-  // User left notification
-  socket.on('user-left', (data) => {
+  function handleUserLeft(data) {
     showToast(`${data.username} left the room.`);
+  }
+
+  function handleChatHistory(messages) {
+    if (chatMessages) {
+      chatMessages.innerHTML = '';
+      if (Array.isArray(messages)) {
+        messages.forEach(appendChatMessage);
+      }
+    }
+  }
+
+  function handleChatMessage(message) {
+    appendChatMessage(message);
+    if (collabSidebar && !collabSidebar.classList.contains('open') && window.innerWidth <= 900) {
+      if (unreadDot) unreadDot.style.display = 'block';
+    }
+  }
+
+  // --- 2A. Socket.IO Transport ---
+  const socket = io({ timeout: 2500 });
+  let p2pActive = false;
+  let p2pFallbackTimer = null;
+
+  socket.on('connect', () => {
+    if (p2pFallbackTimer) clearTimeout(p2pFallbackTimer);
+    updateConnectionStatus('connected', 'Socket.IO');
+    socket.emit('join-room', {
+      roomId,
+      username: activeNickname
+    });
   });
 
-  // Room error (e.g. room does not exist)
+  socket.on('connect_error', () => {
+    // If Socket.IO fails (e.g. on Vercel Serverless), immediately activate WebRTC P2P
+    if (!p2pActive) {
+      initP2PFallback();
+    }
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.warn('Socket.IO disconnected:', reason);
+    if (!p2pActive) {
+      updateConnectionStatus('disconnected');
+    }
+  });
+
+  socket.on('user-info', handleUserInfo);
+  socket.on('initial-board-state', handleInitialBoardState);
+  socket.on('draw', handleIncomingDraw);
+  socket.on('clear-board', handleClearBoard);
+  socket.on('participants-update', handleParticipantsUpdate);
+  socket.on('user-joined', handleUserJoined);
+  socket.on('user-left', handleUserLeft);
+  socket.on('chat-history', handleChatHistory);
+  socket.on('chat-message', handleChatMessage);
   socket.on('room-error', (data) => {
     alert(data.message || 'Room error encountered.');
     window.location.href = '/';
   });
+
+  // Activate P2P fallback if Socket.IO doesn't connect within 1.5 seconds (Vercel serverless)
+  p2pFallbackTimer = setTimeout(() => {
+    if (!socket.connected && !p2pActive) {
+      initP2PFallback();
+    }
+  }, 1500);
+
+  // --- 2B. WebRTC Peer-to-Peer Fallback (for Vercel Serverless hosting) ---
+  const USER_COLORS = [
+    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+    '#ec4899', '#06b6d4', '#14b8a6', '#f97316', '#6366f1'
+  ];
+
+  let isHost = false;
+  let myPeer = null;
+  const p2pConnections = new Map();
+  let p2pHostConn = null;
+  const p2pUsers = new Map();
+  const p2pChatHistory = [];
+
+  function initP2PFallback() {
+    if (p2pActive || (socket && socket.connected)) return;
+    if (typeof Peer === 'undefined') {
+      console.warn('PeerJS library not available.');
+      updateConnectionStatus('disconnected');
+      return;
+    }
+
+    p2pActive = true;
+    console.log('Activating WebRTC P2P fallback for serverless hosting...');
+
+    const cleanRoomId = (roomId || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    const hostPeerId = `collabboard-room-${cleanRoomId}`;
+
+    try {
+      myPeer = new Peer(hostPeerId, { debug: 0 });
+    } catch (e) {
+      startAsGuest(hostPeerId);
+      return;
+    }
+
+    myPeer.on('open', (id) => {
+      setupHost(id);
+    });
+
+    myPeer.on('error', (err) => {
+      if (err.type === 'unavailable-id') {
+        // Host already exists, connect as guest
+        if (myPeer) {
+          myPeer.destroy();
+        }
+        startAsGuest(hostPeerId);
+      } else {
+        console.warn('P2P Peer error:', err.type, err.message);
+      }
+    });
+  }
+
+  function setupHost(hostId) {
+    isHost = true;
+    updateConnectionStatus('connected', 'WebRTC P2P');
+
+    const hostUser = {
+      socketId: hostId,
+      username: activeNickname,
+      color: '#3b82f6',
+      isHost: true
+    };
+    p2pUsers.set(hostId, hostUser);
+    handleUserInfo(hostUser);
+    broadcastP2PParticipants();
+
+    myPeer.on('connection', (conn) => {
+      conn.on('open', () => {
+        p2pConnections.set(conn.peer, conn);
+
+        conn.on('data', (packet) => {
+          handleGuestPacket(conn, packet);
+        });
+
+        conn.on('close', () => {
+          p2pConnections.delete(conn.peer);
+          const departed = p2pUsers.get(conn.peer);
+          p2pUsers.delete(conn.peer);
+          if (departed) {
+            handleUserLeft({ username: departed.username });
+            broadcastToP2PGuests({ type: 'user-left', data: { username: departed.username } });
+            broadcastP2PParticipants();
+          }
+        });
+      });
+    });
+  }
+
+  function handleGuestPacket(conn, packet) {
+    if (!packet || typeof packet !== 'object') return;
+    const { type, data } = packet;
+
+    if (type === 'join-room') {
+      const usedColors = new Set(Array.from(p2pUsers.values()).map(u => u.color));
+      const color = USER_COLORS.find(c => !usedColors.has(c)) || USER_COLORS[p2pUsers.size % USER_COLORS.length];
+      const guestUser = {
+        socketId: conn.peer,
+        username: (data.username || 'Guest').slice(0, 25),
+        color: color,
+        isHost: false
+      };
+      p2pUsers.set(conn.peer, guestUser);
+
+      conn.send({ type: 'user-info', data: guestUser });
+      conn.send({ type: 'initial-board-state', data: drawingHistory });
+      conn.send({ type: 'chat-history', data: p2pChatHistory });
+
+      handleUserJoined({ username: guestUser.username, color: guestUser.color });
+      broadcastToP2PGuests({ type: 'user-joined', data: { username: guestUser.username, color: guestUser.color } });
+      broadcastP2PParticipants();
+
+      const joinMsg = {
+        id: Math.random().toString(36).substring(2, 9),
+        username: 'System',
+        message: `${guestUser.username} joined the room`,
+        isSystem: true,
+        timestamp: Date.now()
+      };
+      p2pChatHistory.push(joinMsg);
+      handleChatMessage(joinMsg);
+      broadcastToP2PGuests({ type: 'chat-message', data: joinMsg });
+
+    } else if (type === 'draw') {
+      drawingHistory.push(data);
+      renderStroke(data);
+      broadcastToP2PGuests({ type: 'draw', data }, conn.peer);
+
+    } else if (type === 'clear-board') {
+      const user = p2pUsers.get(conn.peer);
+      const name = user ? user.username : 'Someone';
+      clearWhiteboard(name);
+      broadcastToP2PGuests({ type: 'clear-board', data: { clearedBy: name } }, conn.peer);
+
+    } else if (type === 'chat-message') {
+      const user = p2pUsers.get(conn.peer);
+      const chatMsg = {
+        id: Math.random().toString(36).substring(2, 9),
+        socketId: conn.peer,
+        username: user ? user.username : 'Guest',
+        color: user ? user.color : '#3b82f6',
+        message: data.message,
+        isSystem: false,
+        timestamp: Date.now()
+      };
+      p2pChatHistory.push(chatMsg);
+      handleChatMessage(chatMsg);
+      broadcastToP2PGuests({ type: 'chat-message', data: chatMsg });
+
+    } else if (type === 'change-nickname') {
+      const user = p2pUsers.get(conn.peer);
+      if (user && data.username) {
+        const oldName = user.username;
+        user.username = data.username.slice(0, 25);
+        broadcastP2PParticipants();
+        const renameMsg = {
+          id: Math.random().toString(36).substring(2, 9),
+          username: 'System',
+          message: `${oldName} changed their name to ${user.username}`,
+          isSystem: true,
+          timestamp: Date.now()
+        };
+        p2pChatHistory.push(renameMsg);
+        handleChatMessage(renameMsg);
+        broadcastToP2PGuests({ type: 'chat-message', data: renameMsg });
+      }
+    }
+  }
+
+  function broadcastToP2PGuests(packet, excludePeerId = null) {
+    for (const [peerId, conn] of p2pConnections) {
+      if (peerId !== excludePeerId && conn.open) {
+        try {
+          conn.send(packet);
+        } catch (err) {
+          console.warn('Failed to send to peer:', peerId, err);
+        }
+      }
+    }
+  }
+
+  function broadcastP2PParticipants() {
+    const participants = Array.from(p2pUsers.values()).map(u => ({
+      socketId: u.socketId,
+      username: u.username,
+      color: u.color
+    }));
+    const updateData = { participants, count: participants.length };
+    handleParticipantsUpdate(updateData);
+    broadcastToP2PGuests({ type: 'participants-update', data: updateData });
+  }
+
+  function startAsGuest(hostPeerId) {
+    isHost = false;
+    updateConnectionStatus('connecting');
+
+    myPeer = new Peer(null, { debug: 0 });
+
+    myPeer.on('open', () => {
+      p2pHostConn = myPeer.connect(hostPeerId, { reliable: true });
+
+      p2pHostConn.on('open', () => {
+        updateConnectionStatus('connected', 'WebRTC P2P');
+        p2pHostConn.send({
+          type: 'join-room',
+          data: { username: activeNickname }
+        });
+      });
+
+      p2pHostConn.on('data', (packet) => {
+        if (!packet || typeof packet !== 'object') return;
+        const { type, data } = packet;
+
+        if (type === 'user-info') {
+          handleUserInfo(data);
+        } else if (type === 'initial-board-state') {
+          handleInitialBoardState(data);
+        } else if (type === 'draw') {
+          handleIncomingDraw(data);
+        } else if (type === 'clear-board') {
+          handleClearBoard(data);
+        } else if (type === 'participants-update') {
+          handleParticipantsUpdate(data);
+        } else if (type === 'user-joined') {
+          handleUserJoined(data);
+        } else if (type === 'user-left') {
+          handleUserLeft(data);
+        } else if (type === 'chat-history') {
+          handleChatHistory(data);
+        } else if (type === 'chat-message') {
+          handleChatMessage(data);
+        }
+      });
+
+      p2pHostConn.on('close', () => {
+        console.warn('Disconnected from Host.');
+        updateConnectionStatus('disconnected');
+        showToast('Room host disconnected. Reconnecting...');
+        setTimeout(() => {
+          p2pActive = false;
+          initP2PFallback();
+        }, 1500);
+      });
+    });
+
+    myPeer.on('error', (err) => {
+      console.warn('Guest peer error:', err);
+      updateConnectionStatus('disconnected');
+    });
+  }
+
+  function p2pEmit(event, data) {
+    if (isHost) {
+      if (event === 'draw') {
+        broadcastToP2PGuests({ type: 'draw', data });
+      } else if (event === 'clear-board') {
+        broadcastToP2PGuests({ type: 'clear-board', data: { clearedBy: currentUser.username || 'You' } });
+      } else if (event === 'chat-message') {
+        const chatMsg = {
+          id: Math.random().toString(36).substring(2, 9),
+          socketId: myPeer ? myPeer.id : 'host',
+          username: currentUser.username || 'Host',
+          color: currentUser.color || '#3b82f6',
+          message: data.message,
+          isSystem: false,
+          timestamp: Date.now()
+        };
+        p2pChatHistory.push(chatMsg);
+        handleChatMessage(chatMsg);
+        broadcastToP2PGuests({ type: 'chat-message', data: chatMsg });
+      } else if (event === 'change-nickname') {
+        if (myPeer && p2pUsers.has(myPeer.id)) {
+          const u = p2pUsers.get(myPeer.id);
+          const oldName = u.username;
+          u.username = data.username;
+          broadcastP2PParticipants();
+          const renameMsg = {
+            id: Math.random().toString(36).substring(2, 9),
+            username: 'System',
+            message: `${oldName} changed their name to ${data.username}`,
+            isSystem: true,
+            timestamp: Date.now()
+          };
+          p2pChatHistory.push(renameMsg);
+          handleChatMessage(renameMsg);
+          broadcastToP2PGuests({ type: 'chat-message', data: renameMsg });
+        }
+      }
+    } else if (p2pHostConn && p2pHostConn.open) {
+      p2pHostConn.send({ type: event, data });
+    }
+  }
+
+  function emitRealtime(event, data) {
+    if (socket && socket.connected) {
+      socket.emit(event, data);
+    } else if (p2pActive) {
+      p2pEmit(event, data);
+    }
+  }
 
   // ----------------------------------------------------
   // 3. DRAWING INTERACTION (POINTER EVENTS)
@@ -326,8 +704,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderStroke(strokeData);
     drawingHistory.push(strokeData);
 
-    // Emit to other clients via Socket.IO
-    socket.emit('draw', strokeData);
+    // Broadcast stroke in real-time
+    emitRealtime('draw', strokeData);
   }
 
   // Pointer event listeners for unified mouse, stylus, and touch handling
@@ -457,7 +835,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnConfirmClear.addEventListener('click', () => {
     clearModal.style.display = 'none';
-    socket.emit('clear-board');
+    clearWhiteboard('You');
+    emitRealtime('clear-board', {});
   });
 
   // Download whiteboard image
@@ -515,35 +894,67 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(`Copied Room ID: ${roomId}`);
   });
 
+  // Share direct invite link for easy 1-click joining
+  const btnCopyInviteLink = document.getElementById('btnCopyInviteLink');
+  if (btnCopyInviteLink) {
+    btnCopyInviteLink.addEventListener('click', async () => {
+      const inviteUrl = `${window.location.origin}/room/${roomId}`;
+      const inviteText = btnCopyInviteLink.querySelector('.invite-text');
+
+      try {
+        await navigator.clipboard.writeText(inviteUrl);
+      } catch (err) {
+        const tempInput = document.createElement('input');
+        tempInput.value = inviteUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+      }
+
+      if (inviteText) {
+        const originalText = inviteText.textContent;
+        inviteText.textContent = 'Copied!';
+        btnCopyInviteLink.style.borderColor = 'var(--accent-emerald)';
+        setTimeout(() => {
+          inviteText.textContent = originalText;
+          btnCopyInviteLink.style.borderColor = '';
+        }, 2000);
+      }
+
+      showToast('Invite link copied! Send it to your friend to draw together.');
+    });
+  }
+
+  // Allow clicking on nickname badge to customize nickname anytime
+  const currentUserBadge = document.getElementById('currentUserBadge');
+  if (currentUserBadge) {
+    currentUserBadge.addEventListener('click', () => {
+      const currentName = currentUser.username || activeNickname || 'Guest';
+      const newName = window.prompt('Change your nickname:', currentName);
+      if (newName && newName.trim() && newName.trim() !== currentName) {
+        const cleanName = newName.trim().slice(0, 25);
+        activeNickname = cleanName;
+        currentUser.username = cleanName;
+        localStorage.setItem('collabboard_nickname', cleanName);
+        if (myNicknameDisplay) myNicknameDisplay.textContent = cleanName;
+        if (myAvatar) myAvatar.textContent = cleanName.charAt(0).toUpperCase();
+
+        emitRealtime('change-nickname', { username: cleanName });
+        showToast(`Nickname updated to "${cleanName}".`);
+      }
+    });
+  }
+
   // ----------------------------------------------------
   // 7. REAL-TIME CHAT
   // ----------------------------------------------------
-  // Chat history when entering room
-  socket.on('chat-history', (messages) => {
-    if (chatMessages) {
-      chatMessages.innerHTML = '';
-      if (Array.isArray(messages)) {
-        messages.forEach(appendChatMessage);
-      }
-    }
-  });
-
-  // Incoming chat message
-  socket.on('chat-message', (message) => {
-    appendChatMessage(message);
-
-    // If sidebar is collapsed on mobile, show unread dot
-    if (collabSidebar && !collabSidebar.classList.contains('open') && window.innerWidth <= 900) {
-      if (unreadDot) unreadDot.style.display = 'block';
-    }
-  });
-
   chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const text = (chatInput.value || '').trim();
     if (!text) return;
 
-    socket.emit('chat-message', { message: text });
+    emitRealtime('chat-message', { message: text });
     chatInput.value = '';
     chatInput.focus();
   });

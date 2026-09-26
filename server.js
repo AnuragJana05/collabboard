@@ -68,9 +68,10 @@ app.post('/create-room', (req, res) => {
  * Check if a room exists API
  */
 app.get('/api/rooms/:roomId/exists', (req, res) => {
-  const roomId = req.params.roomId;
-  const exists = roomManager.roomExists(roomId);
-  res.json({ exists, roomId: roomId.toUpperCase() });
+  const roomId = (req.params.roomId || '').trim().toUpperCase();
+  const isValid = /^[A-Z0-9_-]{3,16}$/.test(roomId);
+  const exists = roomManager.roomExists(roomId) || isValid;
+  res.json({ exists, roomId });
 });
 
 /**
@@ -84,8 +85,12 @@ app.post('/join-room', (req, res) => {
     return res.redirect('/?error=empty_room_id');
   }
 
+  if (!/^[A-Z0-9_-]{3,16}$/.test(rawRoomId)) {
+    return res.redirect('/?error=invalid_room_id');
+  }
+
   if (!roomManager.roomExists(rawRoomId)) {
-    return res.redirect(`/?error=room_not_found&roomId=${encodeURIComponent(rawRoomId)}`);
+    roomManager.createRoom(rawRoomId);
   }
 
   res.redirect(`/room/${rawRoomId}?nickname=${encodeURIComponent(rawNickname)}`);
@@ -102,9 +107,9 @@ app.get('/room/:roomId', (req, res) => {
     return res.redirect('/?error=invalid_room_id');
   }
 
-  // Check if room exists in memory
+  // Check if room exists in memory; auto-create if valid format so joiners never get rejected
   if (!roomManager.roomExists(roomId)) {
-    return res.redirect(`/?error=room_not_found&roomId=${encodeURIComponent(roomId)}`);
+    roomManager.createRoom(roomId);
   }
 
   const rawNickname = req.query.nickname || '';
@@ -280,6 +285,35 @@ io.on('connection', (socket) => {
     if (chatMsg) {
       io.to(socket.roomId).emit('chat-message', chatMsg);
     }
+  });
+
+  // Nickname change event
+  socket.on('change-nickname', ({ username }) => {
+    if (!socket.roomId || !socket.user) return;
+    const cleanName = (username || '').trim().slice(0, 25);
+    if (!cleanName || cleanName === socket.user.username) return;
+
+    const oldName = socket.user.username;
+    socket.user.username = cleanName;
+
+    const room = roomManager.getRoom(socket.roomId);
+    if (room && room.users.has(socket.id)) {
+      room.users.get(socket.id).username = cleanName;
+    }
+
+    const renameMsg = roomManager.addChatMessage(socket.roomId, {
+      username: 'System',
+      message: `${oldName} changed their name to ${cleanName}`,
+      isSystem: true,
+      timestamp: Date.now()
+    });
+    io.to(socket.roomId).emit('chat-message', renameMsg);
+
+    const participants = roomManager.getUsersInRoom(socket.roomId);
+    io.to(socket.roomId).emit('participants-update', {
+      participants,
+      count: participants.length
+    });
   });
 
   // Client disconnect

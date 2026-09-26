@@ -41,20 +41,30 @@
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
           </svg>
-          <span class="copy-text">Copy Room ID</span>
+          <span class="copy-text">Copy ID</span>
+        </button>
+        <button id="btnCopyInviteLink" class="btn-icon btn-invite-link" title="Copy shareable link for friends">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <span class="invite-text">Share Link</span>
         </button>
       </div>
     </div>
 
     <div class="header-right">
       <div class="participant-badge" id="headerParticipantsCount">
-        <span class="status-indicator"></span>
-        <span id="participantCountText">Participants: 1</span>
+        <span class="status-indicator status-connecting" id="statusIndicator" title="Connecting to real-time server..."></span>
+        <span id="participantCountText">Connecting...</span>
       </div>
 
-      <div class="current-user-badge" id="currentUserBadge">
+      <div class="current-user-badge" id="currentUserBadge" title="Click to change your nickname">
         <div class="avatar-circle" id="myAvatar">?</div>
         <span class="my-nickname" id="myNicknameDisplay"><%= nickname || 'Guest' %></span>
+        <svg class="edit-name-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+        </svg>
       </div>
 
       <button id="btnToggleSidebar" class="btn-icon mobile-sidebar-toggle" title="Toggle Chat & Participants">
@@ -74,6 +84,17 @@
       </a>
     </div>
   </header>
+
+  <!-- Real-time Connection Offline Warning Banner -->
+  <div class="connection-banner" id="connectionBanner" style="display: none;">
+    <div class="banner-content">
+      <span class="banner-icon">⚠️</span>
+      <span class="banner-text">
+        <strong>Real-time server offline.</strong> Drawings and participants are not syncing. 
+        <em>Note:</em> Vercel Serverless does not support WebSockets. For multi-user live sync, run locally (<code>npm start</code>) or deploy to a persistent host like <strong>Render</strong>.
+      </span>
+    </div>
+  </div>
 
   <!-- Main App Layout -->
   <div class="workspace-layout">
@@ -243,6 +264,8 @@
 
   <!-- Socket.IO Client Library -->
   <script src="/js/socket.io.min.js"></script>
+  <!-- PeerJS WebRTC P2P Library (Automatic fallback for serverless hosting like Vercel) -->
+  <script src="/js/peerjs.min.js"></script>
   <!-- Whiteboard Room Logic -->
   <script src="/js/room.js"></script>
 </body>

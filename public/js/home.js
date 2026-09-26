@@ -14,6 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (joinNicknameInput) joinNicknameInput.value = savedNickname;
   }
 
+  // Prepopulate Room ID if URL contains query param (e.g. ?roomId=XYZ or ?join=XYZ)
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramRoomId = (urlParams.get('roomId') || urlParams.get('join') || '').trim().toUpperCase();
+  if (paramRoomId && joinRoomIdInput) {
+    joinRoomIdInput.value = paramRoomId;
+    if (joinNicknameInput && !joinNicknameInput.value) {
+      joinNicknameInput.focus();
+    }
+  }
+
   // Sync nicknames between inputs for convenience
   if (createNicknameInput && joinNicknameInput) {
     createNicknameInput.addEventListener('input', (e) => {
