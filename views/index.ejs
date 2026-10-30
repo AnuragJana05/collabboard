@@ -3,180 +3,547 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CollabBoard - Real-time Collaborative Whiteboard</title>
+  <title>Doodlebook — Your friends. One notebook. Endless doodles.</title>
+  <meta name="description" content="Doodlebook is a cozy, playful collaborative drawing website. Pass around a giant digital sketchbook with friends, draw live simultaneously with real-time cursors.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;500;600;700;800;900&family=Patrick+Hand&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-  <div class="page-glow glow-1"></div>
-  <div class="page-glow glow-2"></div>
+<body class="doodlebook-landing">
 
-  <div class="landing-container">
-    <!-- Header / Brand -->
-    <header class="hero-header">
-      <div class="brand-badge">
-        <span class="pulse-dot"></span>
-        <span>Instant Real-Time Collaboration</span>
+  <!-- Top Navbar -->
+  <header class="top-navbar">
+    <div class="doodle-container nav-inner">
+      <a href="/" class="brand-cluster" aria-label="Doodlebook home">
+        <span class="brand-logo">
+          doodlebook<span class="brand-dot">.</span>
+          <span class="brand-doodle-spark">✨</span>
+        </span>
+      </a>
+
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="/" class="nav-link active">Home</a></li>
+          <li><a href="#howItWorks" class="nav-link">How it works</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="/gallery" class="nav-link">Gallery</a></li>
+          <li><a href="/about" class="nav-link">About</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#createRoomSection" class="btn-sticker btn-coral btn-sm">
+          <span>+ Create a Room</span>
+        </a>
       </div>
-      <h1 class="brand-title">
-        <span class="gradient-text">CollabBoard</span>
-      </h1>
-      <p class="tagline">Draw. Collaborate. Create.</p>
-      <p class="description">
-        A real-time collaborative whiteboard for friends, students, and teams. No sign-up required.
-      </p>
-    </header>
+    </div>
+  </header>
 
-    <!-- Error Alert if present -->
-    <% if (error) { %>
-      <div class="alert-banner" id="errorAlert">
-        <div class="alert-icon">⚠️</div>
-        <div class="alert-content">
+  <!-- Error Alert Banner -->
+  <% if (error) { %>
+    <div class="doodle-container" style="margin-top: 1.5rem;">
+      <div class="field-error-banner" role="alert" style="padding: 1rem 1.25rem; font-size: 1.15rem; border-radius: 12px; box-shadow: 2px 2px 0 var(--border-dark);">
+        <span>⚠️</span>
+        <div style="flex: 1;">
           <% if (error === 'room_not_found') { %>
-            <strong>Room not found:</strong> Room <code><%= invalidRoomId %></code> does not exist or has expired.
+            <strong>Notebook not found:</strong> Room <code><%= invalidRoomId %></code> does not exist or has expired.
           <% } else if (error === 'invalid_room_id') { %>
-            <strong>Invalid Room ID:</strong> Please enter a valid room code.
+            <strong>Invalid Room Code:</strong> Please enter a valid room code (3-16 characters).
           <% } else if (error === 'empty_room_id') { %>
-            <strong>Missing Room ID:</strong> Please enter a Room ID to join.
+            <strong>Missing Room Code:</strong> Please enter a Room Code to join.
           <% } else { %>
-            <strong>Notice:</strong> An unexpected issue occurred. Please try again.
+            <strong>Notice:</strong> An unexpected issue occurred. Please try again!
           <% } %>
         </div>
-        <button class="alert-close" onclick="this.parentElement.remove()">✕</button>
+        <button type="button" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: inherit;" onclick="this.parentElement.remove()" aria-label="Dismiss alert">✕</button>
       </div>
-    <% } %>
+    </div>
+  <% } %>
 
-    <!-- Action Cards Grid -->
-    <main class="actions-grid">
-      <!-- Create Room Card -->
-      <section class="action-card create-card">
-        <div class="card-icon-wrapper create-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 5v14M5 12h14"/>
+  <div class="doodle-container">
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <!-- Floating Decorative Stickers -->
+      <span class="floating-doodle doodle-star-1" aria-hidden="true">⭐</span>
+      <span class="floating-doodle doodle-flower-1" aria-hidden="true">🌸</span>
+      <span class="floating-doodle doodle-sparkle-1" aria-hidden="true">✨</span>
+
+      <div class="hero-grid">
+        <!-- Hero Text Content -->
+        <div class="hero-copy">
+          <div class="hero-badge-pill">
+            <span>✏️</span>
+            <span>Real-time collaborative sketchbook</span>
+          </div>
+
+          <h1 class="hero-title">
+            Your friends.<br>
+            One notebook.<br>
+            <span class="highlight-underline">Endless doodles.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            A little sketching, a little chaos, and a whole lot of creativity. Grab your markers, invite your friends, and start drawing together in real time.
+          </p>
+
+          <div class="hero-btn-row">
+            <a href="#createRoomSection" class="btn-sticker btn-coral btn-lg">
+              <span>Create a Room →</span>
+            </a>
+            <a href="#joinRoomSection" class="btn-sticker btn-blue btn-lg">
+              <span>Join a Room</span>
+            </a>
+          </div>
+
+          <div class="hero-meta-doodle">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+            </svg>
+            <span>No logins required. Instant drop-in fun with zero setup.</span>
+          </div>
+        </div>
+
+        <!-- Hero Open Notebook Preview -->
+        <div class="hero-notebook-preview">
+          <!-- Washi tape at corners -->
+          <div class="washi-tape washi-coral tape-top-right"></div>
+          <div class="washi-tape washi-blue tape-bottom-left"></div>
+
+          <div class="hero-notebook-shell">
+            <!-- Spiral notebook spine -->
+            <div class="hero-notebook-spine">
+              <div class="hero-spiral-loop"></div>
+              <div class="hero-spiral-loop"></div>
+              <div class="hero-spiral-loop"></div>
+              <div class="hero-spiral-loop"></div>
+              <div class="hero-spiral-loop"></div>
+              <div class="hero-spiral-loop"></div>
+              <div class="hero-spiral-loop"></div>
+            </div>
+
+            <!-- Notebook Window Header -->
+            <div class="hero-canvas-header">
+              <div class="window-dots-sketch">
+                <span class="sketch-dot red"></span>
+                <span class="sketch-dot yellow"></span>
+                <span class="sketch-dot green"></span>
+              </div>
+              <div class="hero-room-tag">
+                <span>🎨</span>
+                <strong>Chill Doodles.live</strong>
+              </div>
+              <div style="font-family: var(--font-hand); font-size: 1rem; color: var(--color-coral); font-weight: 700;">
+                <span>● 4 friends drawing</span>
+              </div>
+            </div>
+
+            <!-- Interactive Preview Canvas -->
+            <div class="hero-canvas-wrapper" id="previewCanvasContainer">
+              <canvas id="heroDoodleCanvas" width="600" height="380"></canvas>
+
+              <!-- Simulated Participant Cursors -->
+              <div class="hero-sim-cursor" id="simCursor1">
+                <svg class="cursor-arrow-svg" viewBox="0 0 24 24">
+                  <path d="M4 4l7 17 2.5-6.5L20 12 4 4z" fill="#FF8066" stroke="#292723" stroke-width="1.8"/>
+                </svg>
+                <span class="hero-cursor-badge badge-coral">Aditi is drawing ✨</span>
+              </div>
+
+              <div class="hero-sim-cursor" id="simCursor2">
+                <svg class="cursor-arrow-svg" viewBox="0 0 24 24">
+                  <path d="M4 4l7 17 2.5-6.5L20 12 4 4z" fill="#6C9ED2" stroke="#292723" stroke-width="1.8"/>
+                </svg>
+                <span class="hero-cursor-badge badge-blue">Rohan 🚀</span>
+              </div>
+
+              <div class="hero-sim-cursor" id="simCursor3">
+                <svg class="cursor-arrow-svg" viewBox="0 0 24 24">
+                  <path d="M4 4l7 17 2.5-6.5L20 12 4 4z" fill="#8EBB91" stroke="#292723" stroke-width="1.8"/>
+                </svg>
+                <span class="hero-cursor-badge badge-green">Meera 🐱</span>
+              </div>
+            </div>
+
+            <!-- Footer of Hero Preview Canvas -->
+            <div class="hero-canvas-footer">
+              <span>✍️ Click and doodle anywhere on this page!</span>
+              <button type="button" id="btnResetPreview" class="btn-reset-preview">Reset doodles</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CREATE & JOIN ROOM SECTION -->
+    <section class="rooms-action-section" id="roomsActions">
+      <div class="section-head">
+        <span class="section-tag">✦ START A NOTEBOOK ✦</span>
+        <h2 class="section-heading">Grab a fresh sheet or hop into a room</h2>
+        <p class="section-desc">Create a personal space for your group or enter an existing notebook code to begin sketching.</p>
+      </div>
+
+      <div class="action-cards-grid">
+        <!-- Create Room Paper Card -->
+        <div class="scrapbook-card" id="createRoomSection">
+          <div class="washi-tape washi-coral tape-top-left"></div>
+          
+          <div class="card-stamp-badge" style="background: var(--color-coral-light); border-color: var(--color-coral); color: var(--color-coral);">
+            <span>📖</span>
+            <strong>NEW NOTEBOOK</strong>
+          </div>
+
+          <h3 class="card-title">Create a Room</h3>
+          <p class="card-desc">Start a brand new shared drawing notebook. You will receive a unique code and instant invite link to pass around.</p>
+
+          <form id="createRoomForm" action="/create-room" method="POST" class="scrapbook-form">
+            <div class="form-field">
+              <label for="createRoomName" class="form-label">Notebook Name</label>
+              <div class="form-input-wrap">
+                <span class="input-icon-doodle">🏷️</span>
+                <input 
+                  type="text" 
+                  id="createRoomName" 
+                  name="roomName" 
+                  class="scrapbook-input" 
+                  placeholder="e.g. Chill Doodles, Game Night" 
+                  maxlength="40"
+                  autocomplete="off"
+                >
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="createNickname" class="form-label">Your Nickname</label>
+              <div class="form-input-wrap">
+                <span class="input-icon-doodle">✏️</span>
+                <input 
+                  type="text" 
+                  id="createNickname" 
+                  name="nickname" 
+                  class="scrapbook-input" 
+                  placeholder="e.g. Maya, Alex, PixelPilot" 
+                  maxlength="25" 
+                  required
+                  autocomplete="off"
+                >
+              </div>
+            </div>
+
+            <button type="submit" class="btn-sticker btn-coral btn-block btn-lg" style="margin-top: 0.5rem;">
+              <span>Open My Notebook →</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Join Room Paper Card -->
+        <div class="scrapbook-card" id="joinRoomSection">
+          <div class="washi-tape washi-blue tape-top-right"></div>
+          
+          <div class="card-stamp-badge" style="background: var(--color-blue-light); border-color: var(--color-blue); color: var(--color-blue);">
+            <span>🔑</span>
+            <strong>ENTER CODE</strong>
+          </div>
+
+          <h3 class="card-title">Join a Room</h3>
+          <p class="card-desc">Have a room code from a friend? Enter the code and your nickname to join their live drawing notebook.</p>
+
+          <form id="joinRoomForm" action="/join-room" method="POST" class="scrapbook-form">
+            <div class="form-field">
+              <label for="joinNickname" class="form-label">Your Nickname</label>
+              <div class="form-input-wrap">
+                <span class="input-icon-doodle">✏️</span>
+                <input 
+                  type="text" 
+                  id="joinNickname" 
+                  name="nickname" 
+                  class="scrapbook-input" 
+                  placeholder="e.g. Sam, Jordan, Sketcher" 
+                  maxlength="25" 
+                  required
+                  autocomplete="off"
+                >
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="joinRoomId" class="form-label">Room Code</label>
+              <div class="form-input-wrap">
+                <span class="input-icon-doodle">🔖</span>
+                <input 
+                  type="text" 
+                  id="joinRoomId" 
+                  name="roomId" 
+                  class="scrapbook-input code-style-input" 
+                  placeholder="e.g. 7FK2A3" 
+                  maxlength="16" 
+                  required
+                  autocomplete="off"
+                >
+              </div>
+              <div id="joinErrorMsg" class="field-error-banner" style="display: none;" role="alert"></div>
+            </div>
+
+            <button type="submit" id="btnJoinRoom" class="btn-sticker btn-blue btn-block btn-lg" style="margin-top: 0.5rem;">
+              <span>Join Drawing Session →</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Recent Notebooks Panel (LocalStorage) -->
+      <div id="recentRoomsContainer" style="display: none; margin-top: 3rem;">
+        <div class="notebook-binder-frame" style="padding: 2rem 2rem 2rem 3.5rem;">
+          <div class="spiral-rings-track">
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.5rem;">🕒</span>
+              <h3 style="font-family: var(--font-cursive); font-size: 2rem; font-weight: 700;">Recent Notebooks</h3>
+            </div>
+            <button type="button" id="btnClearRecents" class="btn-sticker btn-paper btn-sm">Clear History</button>
+          </div>
+          <div class="gallery-grid" id="recentRoomsList" style="margin-top: 1rem;">
+            <!-- Dynamically populated from localStorage -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works-section" id="howItWorks">
+      <div class="section-head">
+        <span class="section-tag">✦ EFFORTLESS COLLABORATION ✦</span>
+        <h2 class="section-heading">How Doodlebook works</h2>
+        <p class="section-desc">Designed to feel like sharing a real physical sketchbook at a coffee table with your best friends.</p>
+      </div>
+
+      <div class="how-steps-row">
+        <!-- Step 1 -->
+        <div class="how-step-card">
+          <div class="step-doodle-icon icon-yellow">
+            <span>✨</span>
+          </div>
+          <div class="step-num-badge">Step 1</div>
+          <h3 class="step-heading">Create or Join</h3>
+          <p class="step-desc">Pick a nickname and start a room in 1 second flat. No passwords or accounts required.</p>
+          <svg class="step-arrow-doodle" viewBox="0 0 48 24" fill="none">
+            <path d="M4 12C16 4 32 4 42 12M42 12L34 6M42 12L34 18" stroke="#292723" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <div class="card-header">
-          <h2>Create a Room</h2>
-          <p>Start a new whiteboard canvas and invite others with a link or Room ID.</p>
-        </div>
 
-        <form id="createRoomForm" action="/create-room" method="POST" class="card-form">
-          <div class="form-group">
-            <label for="createNickname">Your Nickname</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-              <input 
-                type="text" 
-                id="createNickname" 
-                name="nickname" 
-                placeholder="e.g. Anurag" 
-                maxlength="25" 
-                required
-                autocomplete="off"
-              >
-            </div>
+        <!-- Step 2 -->
+        <div class="how-step-card">
+          <div class="step-doodle-icon icon-coral">
+            <span>🎨</span>
           </div>
-
-          <button type="submit" class="btn btn-primary btn-block">
-            <span>Create New Room</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-        </form>
-      </section>
-
-      <!-- Join Room Card -->
-      <section class="action-card join-card">
-        <div class="card-icon-wrapper join-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-            <polyline points="10 17 15 12 10 7"/>
-            <line x1="15" y1="12" x2="3" y2="12"/>
+          <div class="step-num-badge">Step 2</div>
+          <h3 class="step-heading">Draw Together</h3>
+          <p class="step-desc">Everyone sketches live on the shared paper. Follow friend cursors, drop highlighters, and react with emojis.</p>
+          <svg class="step-arrow-doodle" viewBox="0 0 48 24" fill="none">
+            <path d="M4 12C16 4 32 4 42 12M42 12L34 6M42 12L34 18" stroke="#292723" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <div class="card-header">
-          <h2>Join a Room</h2>
-          <p>Enter an existing Room ID shared by your friend or teammate.</p>
+
+        <!-- Step 3 -->
+        <div class="how-step-card">
+          <div class="step-doodle-icon icon-blue">
+            <span>🖼️</span>
+          </div>
+          <div class="step-num-badge">Step 3</div>
+          <h3 class="step-heading">Save & Share</h3>
+          <p class="step-desc">Keep your creation in your personal scrapbook or export a clean, high-resolution PNG snapshot.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section" id="features">
+      <div class="section-head">
+        <span class="section-tag">✦ CRAFTED WITH CARE ✦</span>
+        <h2 class="section-heading">Playful stationery features</h2>
+        <p class="section-desc">Every detail is made to evoke warm memory books and creative notebooks.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-notebook-card">
+          <div class="feature-icon-bubble" style="background: var(--color-yellow);">✏️</div>
+          <h3 class="feature-title">Stationery Tools</h3>
+          <p class="feature-desc">Fine pencil, smooth ink brush, pastel highlighter, geometric shapes, and handwritten text notes.</p>
         </div>
 
-        <form id="joinRoomForm" action="/join-room" method="POST" class="card-form">
-          <div class="form-group">
-            <label for="joinNickname">Your Nickname</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-              <input 
-                type="text" 
-                id="joinNickname" 
-                name="nickname" 
-                placeholder="e.g. Rahul" 
-                maxlength="25" 
-                required
-                autocomplete="off"
-              >
-            </div>
-          </div>
+        <div class="feature-notebook-card">
+          <div class="feature-icon-bubble" style="background: var(--color-coral); color: #fff;">👀</div>
+          <h3 class="feature-title">Live Cursors & Labels</h3>
+          <p class="feature-desc">See everyone's exact cursor in real time with playful name badges and color-coded arrows.</p>
+        </div>
 
-          <div class="form-group">
-            <label for="joinRoomId">Room ID</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-              <input 
-                type="text" 
-                id="joinRoomId" 
-                name="roomId" 
-                placeholder="e.g. X7K92M" 
-                maxlength="16" 
-                required
-                autocomplete="off"
-                class="uppercase-input"
-              >
-            </div>
-            <div id="joinErrorMsg" class="field-error" style="display: none;"></div>
-          </div>
+        <div class="feature-notebook-card">
+          <div class="feature-icon-bubble" style="background: var(--color-blue); color: #fff;">💖</div>
+          <h3 class="feature-title">Floating Reactions</h3>
+          <p class="feature-desc">Burst animated reactions across the canvas—hearts, fire, laughs, and stars without leaving marks.</p>
+        </div>
 
-          <button type="submit" id="btnJoinRoom" class="btn btn-secondary btn-block">
-            <span>Join Room</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-              <polyline points="10 17 15 12 10 7"/>
-              <line x1="15" y1="12" x2="3" y2="12"/>
+        <div class="feature-notebook-card">
+          <div class="feature-icon-bubble" style="background: var(--color-green); color: #fff;">📜</div>
+          <h3 class="feature-title">Spiral Notebook Paper</h3>
+          <p class="feature-desc">Creamy textured paper with authentic punched spiral rings, red margin guide, and subtle grid lines.</p>
+        </div>
+
+        <div class="feature-notebook-card">
+          <div class="feature-icon-bubble" style="background: var(--color-pink); color: #fff;">⚡</div>
+          <h3 class="feature-title">Zero Friction</h3>
+          <p class="feature-desc">No login forms or email verifications. Create a room, send the link, and begin immediately.</p>
+        </div>
+
+        <div class="feature-notebook-card">
+          <div class="feature-icon-bubble" style="background: var(--color-lavender);">📥</div>
+          <h3 class="feature-title">Clean PNG Export</h3>
+          <p class="feature-desc">Export your masterpiece to crystal-clear high-res PNG without UI buttons or toolbars.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCRAPBOOK GALLERY PREVIEW -->
+    <section class="gallery-preview-section">
+      <div class="section-head">
+        <span class="section-tag">✦ COMMUNITY SCRAPBOOK ✦</span>
+        <h2 class="section-heading">Example collaborative artwork</h2>
+        <p class="section-desc">Take inspiration from notebooks drawn by friends, art buddies, and study groups.</p>
+      </div>
+
+      <div class="gallery-grid">
+        <!-- Notebook 1 -->
+        <a href="/room/CHILL-101" class="notebook-thumb-card">
+          <div class="washi-tape washi-yellow tape-top-left" style="width: 60px; height: 18px;"></div>
+          <div class="thumb-preview-box">
+            <svg viewBox="0 0 200 120" class="thumb-canvas-svg">
+              <circle cx="50" cy="45" r="22" fill="#F5D77A" opacity="0.6"/>
+              <path d="M40 40 Q50 25 60 40" stroke="#292723" stroke-width="2" fill="none"/>
+              <path d="M42 50 Q50 60 58 50" stroke="#292723" stroke-width="2" fill="none"/>
+              <path d="M120 70 Q140 40 160 70 Q180 100 120 70" fill="#FF8066" opacity="0.5"/>
+              <text x="110" y="45" font-family="'Patrick Hand', cursive" font-size="14" fill="#292723">chill vibes only</text>
             </svg>
-          </button>
-        </form>
-      </section>
-    </main>
+          </div>
+          <h4 class="thumb-title">Chill Doodles</h4>
+          <div class="thumb-meta">
+            <span class="thumb-participants">👥 4 friends</span>
+            <span>2 hours ago</span>
+          </div>
+        </a>
 
-    <!-- Feature Highlights -->
-    <footer class="features-row">
-      <div class="feature-item">
-        <span class="feature-bullet">✦</span>
-        <span>Simultaneous multi-user drawing</span>
+        <!-- Notebook 2 -->
+        <a href="/room/CHAOS-88" class="notebook-thumb-card">
+          <div class="washi-tape washi-coral tape-top-right" style="width: 60px; height: 18px;"></div>
+          <div class="thumb-preview-box">
+            <svg viewBox="0 0 200 120" class="thumb-canvas-svg">
+              <circle cx="100" cy="60" r="30" fill="#D9A7CE" opacity="0.5"/>
+              <circle cx="88" cy="54" r="4" fill="#292723"/>
+              <circle cx="112" cy="54" r="4" fill="#292723"/>
+              <path d="M92 68 Q100 78 108 68" stroke="#292723" stroke-width="2.5" fill="none"/>
+              <polygon points="40,25 45,40 60,40 48,50 52,65 40,55 28,65 32,50 20,40 35,40" fill="#F5D77A"/>
+            </svg>
+          </div>
+          <h4 class="thumb-title">Random Chaos</h4>
+          <div class="thumb-meta">
+            <span class="thumb-participants">👥 6 friends</span>
+            <span>1 day ago</span>
+          </div>
+        </a>
+
+        <!-- Notebook 3 -->
+        <a href="/room/TEAM-FUN" class="notebook-thumb-card">
+          <div class="washi-tape washi-blue tape-top-left" style="width: 60px; height: 18px;"></div>
+          <div class="thumb-preview-box">
+            <svg viewBox="0 0 200 120" class="thumb-canvas-svg">
+              <rect x="40" y="30" width="50" height="50" rx="6" fill="#6C9ED2" opacity="0.4"/>
+              <circle cx="140" cy="55" r="24" fill="#8EBB91" opacity="0.4"/>
+              <line x1="85" y1="55" x2="116" y2="55" stroke="#292723" stroke-width="2" stroke-dasharray="4,4"/>
+              <text x="45" y="60" font-family="'Patrick Hand', cursive" font-size="12" fill="#292723">Idea #1</text>
+            </svg>
+          </div>
+          <h4 class="thumb-title">Team Brainstorm</h4>
+          <div class="thumb-meta">
+            <span class="thumb-participants">👥 5 friends</span>
+            <span>3 days ago</span>
+          </div>
+        </a>
+
+        <!-- Notebook 4 -->
+        <a href="/room/BDAY-CARD" class="notebook-thumb-card">
+          <div class="washi-tape washi-green tape-top-right" style="width: 60px; height: 18px;"></div>
+          <div class="thumb-preview-box">
+            <svg viewBox="0 0 200 120" class="thumb-canvas-svg">
+              <rect x="70" y="50" width="60" height="40" rx="4" fill="#FF8066" opacity="0.4"/>
+              <line x1="100" y1="35" x2="100" y2="50" stroke="#F5D77A" stroke-width="3"/>
+              <circle cx="100" cy="30" r="4" fill="#F97316"/>
+              <text x="45" y="105" font-family="'Patrick Hand', cursive" font-size="14" fill="#292723">Happy Birthday! 🎂</text>
+            </svg>
+          </div>
+          <h4 class="thumb-title">Birthday Card</h4>
+          <div class="thumb-meta">
+            <span class="thumb-participants">👥 8 friends</span>
+            <span>1 week ago</span>
+          </div>
+        </a>
       </div>
-      <div class="feature-item">
-        <span class="feature-bullet">✦</span>
-        <span>Precision pen & composite eraser</span>
+
+      <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="/gallery" class="btn-sticker btn-paper btn-lg">
+          <span>View All Scrapbooks in Gallery →</span>
+        </a>
       </div>
-      <div class="feature-item">
-        <span class="feature-bullet">✦</span>
-        <span>Built-in real-time room chat</span>
+    </section>
+
+    <!-- FINAL CTA BANNER -->
+    <section class="final-cta-section">
+      <div class="cta-notebook-card">
+        <div class="washi-tape washi-coral tape-top-left"></div>
+        <div class="washi-tape washi-yellow tape-top-right"></div>
+        
+        <h2 class="cta-title">Ready to fill a page together?</h2>
+        <p class="cta-desc">
+          Spin up an instant room in seconds. Invite your friends, pick your favorite marker color, and start doodling right away!
+        </p>
+
+        <div class="cta-btns">
+          <a href="#createRoomSection" class="btn-sticker btn-coral btn-lg">
+            <span>+ Create a New Notebook</span>
+          </a>
+          <a href="#joinRoomSection" class="btn-sticker btn-blue btn-lg">
+            <span>Join with Room Code</span>
+          </a>
+        </div>
       </div>
-      <div class="feature-item">
-        <span class="feature-bullet">✦</span>
-        <span>Automatic state replay for new joiners</span>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="doodle-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="footer-logo">doodlebook<span style="color: var(--color-coral);">.</span></span>
+          <span class="footer-tagline">Your friends. One notebook. Endless doodles.</span>
+        </div>
+
+        <div class="footer-links">
+          <a href="/" class="footer-link">Home</a>
+          <a href="#howItWorks" class="footer-link">How it works</a>
+          <a href="/gallery" class="footer-link">Scrapbook Gallery</a>
+          <a href="/about" class="footer-link">About Doodlebook</a>
+        </div>
+
+        <div class="footer-badges">
+          <span class="stationery-pill">Socket.IO Live Sync</span>
+          <span class="stationery-pill">HTML5 Canvas</span>
+          <span class="stationery-pill">Zero Sign-Up</span>
+        </div>
       </div>
     </footer>
+
   </div>
 
   <script src="/js/home.js"></script>

@@ -1,7 +1,7 @@
-# CollabBoard 🎨
+# Doodlebook 🎨✨
 
-> **Draw. Collaborate. Create.**
-> A modern, real-time collaborative whiteboard web application where friends, students, and teams can create or join rooms without any sign-up, draw simultaneously on the same canvas, and chat live.
+> **Your friends. One notebook. Endless doodles.**
+> A cozy, playful collaborative drawing website and digital scrapbook where friends, students, and teams can draw together in real time without signing up, pass around infinite digital sketchbooks, chat live, and react with playful floating emojis.
 
 ---
 
@@ -12,48 +12,47 @@
 4. [Project Structure](#-project-structure)
 5. [Installation & Setup](#-installation--setup)
 6. [Running Locally](#-running-locally)
-7. [How to Create a Room](#-how-to-create-a-room)
-8. [How to Join a Room](#-how-to-join-a-room)
+7. [Deploying to Vercel](#-deploying-to-vercel)
+8. [Deploying to Render](#-deploying-to-render)
 9. [How Real-Time Synchronization Works](#-how-real-time-synchronization-works)
-10. [Known Limitations](#-known-limitations)
-11. [Future Improvements](#-future-improvements)
+10. [Automated Integration Testing](#-automated-integration-testing)
+11. [License](#-license)
 
 ---
 
 ## 🌟 Project Overview
 
-**CollabBoard** is an instant real-time collaborative canvas designed for speed, zero friction, and high responsiveness. Built purely using standard web technologies (**Node.js**, **Express.js**, **EJS**, **Socket.IO**, and vanilla **HTML5 Canvas**), it requires **no authentication, no account creation, and no external database setup**.
+**Doodlebook** turns the classic charm of a physical spiral sketchbook into a shared digital canvas. Built with standard web technologies (**Node.js**, **Express.js**, **EJS**, **Socket.IO**, **WebRTC PeerJS**, and vanilla **HTML5 Canvas**), it requires **zero authentication, no account creation, and no external database setup**.
 
-Users simply enter a nickname, click **Create Room**, and share their generated Room ID or room link with collaborators. Every stroke, tool change, chat message, and clear event is synchronized with sub-millisecond latency.
+Users create a notebook with a custom name and description, grab a shareable room link or code, and invite friends to draw simultaneously. On persistent servers (such as Render or local Node), real-time updates flow through low-latency **Socket.IO WebSockets**. When deployed to serverless hosts like **Vercel**, the application automatically activates **WebRTC Peer-to-Peer (P2P) Data Channels**, allowing peers to stream strokes and cursors directly between browsers without needing persistent server instances.
 
 ---
 
 ## ✨ Key Features
 
-- 🖌️ **Real-Time Freehand Drawing**: Multi-user simultaneous drawing with high-frequency coordinate streaming and line smoothing.
-- 🧹 **True Composite Eraser**: Implemented with HTML5 Canvas `ctx.globalCompositeOperation = 'destination-out'` to erase strokes without leaving ugly white artifacts over backgrounds.
-- 🎨 **Color & Size Customization**: 7 curated modern palette presets, an HTML5 custom color picker, quick brush size buttons (`S: 4px`, `M: 10px`, `L: 22px`), and a granular slider (`2px` to `40px`).
-- ⚡ **Full Board State Synchronization**: New participants joining an ongoing session immediately receive the full historical canvas state (`initial-board-state`) and chat history.
-- 📱 **Responsive & High-DPI Ready**: Fully responsive layout tailored for desktops, laptops, tablets, and phones. High-DPI scaling (`window.devicePixelRatio`) ensures ultra-sharp lines on Retina displays, while Pointer Events unify mouse, stylus, and touch interactions.
-- 💬 **Live Room Chat**: Built-in chat channel with user color tags, formatted timestamps, auto-scroll, unread indicators on mobile, and HTML sanitization to prevent XSS attacks.
-- 👥 **Live Participant Tracking**: Shows real-time participant counter (`Participants: N`) and participant list with user nicknames, avatar badges, and personalized `(You)` indicators.
-- 📋 **One-Click Room Sharing**: Header bar features a "Copy Room ID" button with instant `"Copied!"` visual feedback.
-- 🗑️ **Clear Whiteboard Modal**: Safe clear workflow with confirmation dialog to prevent accidental erasure, resetting board state across all connected peers.
-- 💾 **Export Whiteboard**: Export canvas artwork anytime to high-resolution PNG image with dark slate backdrop.
+- ✏️ **Stationery Drawing Tools**: Fine pencil, smooth calligraphy ink brush, translucent highlighter with blend modes, eraser (`destination-out`), and straight line tool.
+- 📐 **Geometric & Scrapbook Shapes**: Instant rectangles, circles, triangles, and 5-point stars.
+- 🔤 **Text & Handwritten Notes**: Type directly onto the paper using hand-drawn Google Fonts (`Caveat`, `Patrick Hand`).
+- 👥 **Multiplayer Live Cursors**: Live remote cursors with user names and avatar tags, smoothly animated using frame-rate independent interpolation (lerp).
+- 💖 **Floating Reaction Bursts**: Tap emoji reactions (❤️, ✨, 🔥, 👏, 🎨, 🐱) that burst across collaborators' viewports with floating physics.
+- ↩️ **Global & Local Undo / Redo**: Stroke-based undo history synchronized across all peers.
+- 🔍 **Smooth Zoom & Pan**: Infinite navigation with mouse wheel, zoom buttons, and reset view.
+- 💬 **Live Scrapbook Chat**: Chat sidebar with user color coding, formatted timestamps, auto-scroll, unread indicators, and strict HTML sanitization.
+- 📖 **Notebooks Gallery & Saved Sessions**: Browse active sessions, sample sketchbooks, and access your recent notebooks stored in localStorage.
+- 📷 **High-Res Paper Export**: Download artwork anytime to PNG with warm dotted paper texture and subtle grid lines.
+- ⚡ **Dual Real-Time Engine (Socket.IO + WebRTC P2P)**: Automatic fallback to WebRTC P2P data channels when deployed on serverless environments like Vercel.
 
 ---
 
 ## 🛠️ Tech Stack
-
-CollabBoard strictly adheres to the requested technology stack with zero third-party UI frameworks or external database dependencies:
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
 | **Backend Runtime** | Node.js | Fast JavaScript server runtime |
 | **Server Framework** | Express.js (v4) | Minimalist web application server & routing |
 | **Templating Engine**| EJS (Embedded JavaScript) | Dynamic server-side HTML rendering |
-| **Real-Time Transport** | Socket.IO (v4) | WebSocket-based low-latency bidirectional rooms & events |
-| **Frontend UI** | Vanilla HTML5 + CSS3 + JS | Zero frontend frameworks, pure CSS styling |
+| **Real-Time Transport** | Socket.IO (v4) + PeerJS (WebRTC) | WebSocket rooms with seamless P2P data channel fallback |
+| **Frontend UI** | Vanilla HTML5 + CSS3 + JS | Handcrafted stationery design system with zero UI frameworks |
 | **Whiteboard Canvas** | HTML5 2D Canvas API | High-performance hardware-accelerated 2D rendering |
 | **Room State** | In-Memory JavaScript Objects | Pure RAM data structures (`Map`, arrays) with auto-cleanup |
 | **Package Manager** | npm | Standard Node package manager |
@@ -63,27 +62,37 @@ CollabBoard strictly adheres to the requested technology stack with zero third-p
 ## 📂 Project Structure
 
 ```text
-collabboard/
+doodlebook/
 │
-├── server.js               # Express application and Socket.IO real-time event hub
+├── server.js               # Express application, HTTP routes, and Socket.IO hub
 ├── package.json            # Project manifest, scripts, and dependencies
+├── render.yaml             # Render.com persistent web service configuration
+├── vercel.json             # Vercel serverless function rewrites and file tracing
+├── .vercelignore           # Excluded files for Vercel deployment bundles
 ├── README.md               # Complete project documentation
 │
+├── api/
+│   └── index.js            # Vercel Serverless Function entry point
+│
 ├── views/
-│   ├── index.ejs           # Landing page template (Create Room & Join Room)
-│   └── room.ejs            # Whiteboard room template (Canvas, Toolbar, Chat, Sidebar)
+│   ├── index.ejs           # Landing page (Hero, Create Notebook, Join, Features)
+│   ├── room.ejs            # Workspace room (Canvas, Toolbar, Sidebar, Reactions)
+│   ├── gallery.ejs         # My Notebooks & Scrapbook Gallery page
+│   └── about.ejs           # Philosophy, Stationery Guide, and Tips page
 │
 ├── public/
 │   ├── css/
-│   │   ├── style.css       # Landing page styling, glassmorphism, responsive grid
-│   │   └── room.css        # Workspace styling, toolbar, canvas viewport, chat, sidebar
+│   │   ├── style.css       # Landing, gallery, and about page styling
+│   │   └── room.css        # Workspace styling, canvas viewport, toolbar, chat
 │   │
 │   └── js/
-│       ├── home.js         # Landing page form validation, localStorage persistence, API checks
-│       └── room.js         # Canvas drawing engine, Pointer Events, Socket.IO client logic
+│       ├── home.js         # Landing page interactions, recent notebooks, API checks
+│       ├── room.js         # Canvas engine, tools, Socket.IO & WebRTC P2P engine
+│       ├── socket.io.min.js# Bundled Socket.IO client library
+│       └── peerjs.min.js   # Bundled PeerJS WebRTC client library
 │
 ├── utils/
-│   └── roomManager.js      # In-memory room manager (rooms, users, strokes, messages, cleanup)
+│   └── roomManager.js      # In-memory room manager (rooms, users, strokes, messages)
 │
 └── test/
     └── test_collabboard.js # Automated 12-suite live integration test runner
@@ -98,7 +107,7 @@ collabboard/
 - [npm](https://www.npmjs.com/) (bundled with Node.js)
 
 ### Step 1: Install Dependencies
-Open your terminal in the project directory and install the required dependencies:
+Open your terminal in the project directory:
 
 ```bash
 npm install
@@ -109,20 +118,16 @@ npm install
 ## 💻 Running Locally
 
 ### Development Mode (with Auto-Reload)
-Run the application using `nodemon` so the server restarts automatically upon file edits:
-
 ```bash
 npm run dev
 ```
 
 ### Production Mode
-Run the standard Node.js server:
-
 ```bash
 npm start
 ```
 
-Once running, navigate to:
+Once started, open your browser to:
 ```text
 http://localhost:3000
 ```
@@ -131,13 +136,11 @@ http://localhost:3000
 
 ## ⚡ Deploying to Vercel
 
-CollabBoard is configured for immediate deployment to **Vercel** via Serverless Functions:
+Doodlebook is fully configured for immediate zero-config deployment to **Vercel** via Serverless Functions:
 
-### Files Added for Vercel
-- **[`vercel.json`](file:///d:/Projects/vercel.json)**: Configures rewrites to `/api/index.js` and instructs Vercel to bundle `views/**` EJS templates into the serverless function.
-- **[`api/index.js`](file:///d:/Projects/api/index.js)**: Serverless function wrapper exporting the Express application.
-- **[`.vercelignore`](file:///d:/Projects/.vercelignore)**: Excludes local test files and unnecessary artifacts from the deployment bundle.
-- **[`public/js/socket.io.min.js`](file:///d:/Projects/public/js/socket.io.min.js)**: Static Socket.IO client library delivered directly via Vercel's Edge CDN.
+### How It Works on Vercel
+1. **Serverless HTTP**: `vercel.json` rewrites all incoming traffic to `api/index.js`, where Express renders EJS templates (`index`, `room`, `gallery`, `about`) and serves JSON APIs.
+2. **WebRTC P2P Fallback**: Because Vercel serverless functions do not maintain long-lived WebSocket connections, `public/js/room.js` automatically detects serverless environments and initiates **PeerJS WebRTC P2P channels** between collaborators in the room.
 
 ### Option 1: Deploy with Vercel CLI
 ```bash
@@ -146,107 +149,68 @@ vercel
 ```
 Follow the interactive prompts:
 - Set up and deploy: **Y**
-- Link to existing project: **N**
-- Project name: **collabboard**
+- Project name: **doodlebook**
 - Directory: **./**
 - Modify settings: **N**
 
-### Option 2: Deploy via Vercel Web Dashboard (GitHub / GitLab)
+For production deployment:
+```bash
+vercel --prod
+```
+
+### Option 2: Deploy via Vercel Web Dashboard (GitHub)
 1. Push your repository to GitHub.
-2. In the [Vercel Dashboard](https://vercel.com/new), click **Add New... -> Project**.
-3. Import your `collabboard` repository.
+2. Go to [vercel.com/new](https://vercel.com/new).
+3. Import your `doodlebook` repository.
 4. Leave Framework Preset as **Other** (Vercel automatically detects `vercel.json`).
 5. Click **Deploy**.
 
-> [!IMPORTANT]
-> **Vercel Serverless Architecture Note**:
-> Vercel executes code using short-lived, stateless Serverless Functions (AWS Lambda). While HTTP routing, EJS pages, and static assets work seamlessly on Vercel, persistent bidirectional TCP WebSockets (`ws://`) and in-memory room state across multiple users require a persistent Node.js process.
-> 
-> If you need full, persistent multi-user WebSocket synchronization in production for free, deploy to **[Render](https://render.com/)**, **[Railway](https://railway.app/)**, or **[Fly.io](https://fly.io/)** where a full persistent Node.js server runs continuously.
-
 ---
 
-## 🚪 How to Create a Room
+## 🌐 Deploying to Render
 
-1. Navigate to `http://localhost:3000` in your web browser.
-2. In the **Create a Room** card, type your temporary nickname (e.g., `Anurag`).
-3. Click **Create New Room**.
-4. The server generates a unique alphanumeric Room ID (e.g., `ZSBNDA`), initializes the room in memory, and redirects you to `/room/ZSBNDA`.
-5. Click **Copy Room ID** or share your browser URL with friends.
+If you prefer continuous, persistent WebSocket connections with Socket.IO, deploy to **Render**:
 
----
-
-## 👥 How to Join a Room
-
-1. On the landing page (`http://localhost:3000`), navigate to the **Join a Room** card.
-2. Enter your nickname (e.g., `Rahul`).
-3. Enter the shared **Room ID** (e.g., `ZSBNDA`).
-4. Click **Join Room**.
-5. The client checks the room existence via `/api/rooms/:roomId/exists`. If the room exists, you are immediately routed to the room canvas; otherwise, an inline error is displayed.
-6. Alternatively, collaborators can paste the direct room link (`http://localhost:3000/room/ZSBNDA`) into their browser. If no nickname is specified in the URL, the app prompts for one.
+1. Push your repository to GitHub.
+2. In the [Render Dashboard](https://dashboard.render.com/), click **New -> Blueprint**.
+3. Connect your repository. Render automatically reads `render.yaml`:
+   - Environment: `node`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+4. Click **Apply**.
 
 ---
 
 ## 🔄 How Real-Time Synchronization Works
 
 ```text
-[ Client A (Anurag) ]            [ Server (Express + Socket.IO) ]            [ Client B (Rahul) ]
-         |                                     |                                      |
-         | --- (1) join-room {roomId} -------> |                                      |
-         | <--- (2) initial-board-state ------ |                                      |
-         |                                     | <--- (3) join-room {roomId} -------- |
-         | <--- (4) user-joined {Rahul} ------ | --- (5) initial-board-state -------> |
-         |                                     |                                      |
-         | --- (6) draw {x, y, color...} ----> |                                      |
-         |                                     | --- (7) broadcast 'draw' ----------> |
-         |                                     |                                      |
-         |                                     | <--- (8) chat-message -------------- |
-         | <--- (9) broadcast 'chat-message' - | -----------------------------------> |
+ Client A (Drawing)                    Server / P2P Host                  Client B (Observer)
+       |                                      |                                    |
+       | --- (1) emit 'draw' ---------------> |                                    |
+       |     {tool, color, size, nx, ny...}   | --- (2) broadcast 'draw' --------> |
+       |                                      |                                    |
+       | --- (3) emit 'cursor-move' --------> |                                    |
+       |     {nx, ny, username, color}        | --- (4) broadcast 'cursor-move' -> |
+       |                                      |                                    |
+       | --- (5) emit 'reaction' -----------> |                                    |
+       |     {emoji, x, y}                    | --- (6) broadcast 'reaction' -----> |
 ```
 
-### 1. Vector Stroke Events (Not Raster Images)
-Rather than broadcasting expensive full-canvas images or screenshots on every frame, CollabBoard streams lightweight vector stroke segments containing:
-```javascript
-{
-  x: 250,        // Current X coordinate
-  y: 180,        // Current Y coordinate
-  prevX: 240,    // Previous X coordinate
-  prevY: 170,    // Previous Y coordinate
-  nx: 0.25,      // Normalized proportional X (0.0 to 1.0)
-  ny: 0.18,      // Normalized proportional Y (0.0 to 1.0)
-  prevNx: 0.24,  // Normalized proportional prevX
-  prevNy: 0.17,  // Normalized proportional prevY
-  color: "#38bdf8",
-  size: 4,
-  tool: "pen"    // 'pen' or 'eraser'
-}
-```
-
-### 2. Resolution & Screen-Independent Replay
-Normalized coordinates (`nx`, `ny`) ensure that strokes appear in the exact proportional position regardless of differences in viewport dimensions between devices (e.g., 4K monitor vs. 13-inch laptop vs. mobile).
-
-### 3. Late-Joiner Catchup
-Every valid stroke is stored in `room.drawingData`. When a new peer joins an ongoing room:
-```javascript
-socket.emit("initial-board-state", room.drawingData);
-```
-The joining client's canvas engine executes `redrawAllStrokes()`, seamlessly reconstructing the entire collaborative artwork.
-
-### 4. Memory Management & Inactivity Cleanup
-When all users disconnect from a room (`remainingCount === 0`), a 45-second grace period timer is initiated. If a user refreshes their tab or reconnects within 45 seconds, the timer is cleared and the session persists. If no users return, the room is safely deallocated from memory to prevent leaks.
+1. **Lightweight Vector Streaming**: Strokes are transmitted as normalized fractional coordinate segments (`0.0` to `1.0`), ensuring identical appearance across phone screens, tablets, and 4K desktop displays.
+2. **Late-Joiner Catchup**: When joining an existing notebook, new peers receive the complete stroke history (`initial-board-state`) and chat log (`chat-history`) to immediately reconstruct the artwork.
+3. **Automatic Room Cleanup**: In-memory rooms without active participants are preserved for a 20-minute grace period before safe deallocation.
 
 ---
 
-## 🧪 Testing
+## 🧪 Automated Integration Testing
 
-CollabBoard includes an automated multi-client integration test suite verifying all 15 scenarios from Section 25:
+Doodlebook includes an automated multi-client integration test runner that tests 12 critical end-to-end scenarios:
 
-To run the live test suite:
 ```bash
-node test/test_collabboard.js
+npm test
 ```
 
-### Test Coverage Highlights:
+### Test Coverage:
 - ✅ **Test 1**: Landing page HTTP 200 response and branding.
 - ✅ **Test 2**: Room generation and `/api/rooms/:roomId/exists` validation.
 - ✅ **Test 3**: Client A connection, user color assignment, and initial empty state.
@@ -257,28 +221,10 @@ node test/test_collabboard.js
 - ✅ **Test 9**: Client B leaves -> room updates participant count and emits `user-left`.
 - ✅ **Test 10**: Late joiner Client D receives full historical board state (strokes + chat log).
 - ✅ **Test 11**: Clear whiteboard confirmation and broadcast event -> subsequent joiners receive empty canvas.
-- ✅ **Test 12**: Connection to non-existent or invalid room is safely rejected with `room-error`.
-
----
-
-## ⚠️ Known Limitations
-
-- **In-Memory Storage**: Rooms, strokes, and chat history are held in RAM. Restarting the server process clears active rooms.
-- **Stroke Count Cap**: To prevent memory exhaustion during marathon drawing sessions, individual rooms have a sliding window cap of 50,000 stroke segments.
-- **Undo / Redo Across Multiple Users**: Collaborative multi-user undo is intentionally simplified in this MVP to prevent race conditions without an Operational Transformation (OT) or CRDT engine.
-
----
-
-## 🔮 Future Improvements
-
-- 🔄 **Undo / Redo with Vector Stacks**: Per-user stroke undo stacks using undo tokens.
-- 📐 **Shape Tools**: Rectangle, circle, ellipse, arrow, and straight line generators.
-- 🔤 **Text Tool**: Text insertion directly on the whiteboard canvas.
-- 🔒 **Password-Protected Rooms**: Optional room passcodes for private brainstorming sessions.
-- 🖼️ **Image Paste / Upload**: Ability to drag & drop reference images onto the canvas.
-- 💾 **Persistent Backends**: Optional Redis adapter for multi-instance horizontal scaling with Socket.IO clusters.
+- ✅ **Test 12**: Connection to invalid room format is safely rejected with `room-error`.
 
 ---
 
 ## 📄 License
-MIT License. Built for collaborative learning and real-time canvas demonstration.
+
+MIT License. Designed and crafted with ❤️ for collaborative drawing and joyful digital scrapbooking.

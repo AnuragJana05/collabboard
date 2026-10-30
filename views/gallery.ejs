@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Notebooks & Scrapbook Gallery — Doodlebook</title>
+  <meta name="description" content="Browse your saved drawing sessions, active notebooks, and creative scrapbooks made with friends on Doodlebook.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;500;600;700;800;900&family=Patrick+Hand&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="doodlebook-gallery">
+
+  <!-- Top Navbar -->
+  <header class="top-navbar">
+    <div class="doodle-container nav-inner">
+      <a href="/" class="brand-cluster" aria-label="Doodlebook home">
+        <span class="brand-logo">
+          doodlebook<span class="brand-dot">.</span>
+          <span class="brand-doodle-spark">✨</span>
+        </span>
+      </a>
+
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/#howItWorks" class="nav-link">How it works</a></li>
+          <li><a href="/gallery" class="nav-link active">Gallery</a></li>
+          <li><a href="/about" class="nav-link">About</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="/create" class="btn-sticker btn-coral btn-sm">
+          <span>+ New Notebook</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="doodle-container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+
+    <!-- Gallery Header -->
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+      <div>
+        <span class="section-tag">✦ YOUR SCRAPBOOK DESK ✦</span>
+        <h1 class="hero-title" style="font-size: 3rem; margin-top: 0.25rem;">
+          My Notebooks & Gallery
+        </h1>
+        <p class="hero-subtitle" style="margin-top: 0.25rem;">
+          Saved drawing sessions, active collaborative rooms, and community artwork.
+        </p>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.85rem;">
+        <a href="/#createRoomSection" class="btn-sticker btn-coral btn-lg">
+          <span>+ Start a New Notebook</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Active & Featured Notebooks Grid -->
+    <div class="gallery-grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2rem;">
+
+      <!-- Featured Notebook Card 1 -->
+      <div class="notebook-thumb-card">
+        <div class="washi-tape washi-yellow tape-top-left" style="width: 70px; height: 20px;"></div>
+        <div class="thumb-preview-box" style="height: 180px;">
+          <svg viewBox="0 0 200 140" class="thumb-canvas-svg">
+            <circle cx="100" cy="70" r="36" fill="#F5D77A" opacity="0.6"/>
+            <!-- Cute face -->
+            <circle cx="88" cy="64" r="4" fill="#292723"/>
+            <circle cx="112" cy="64" r="4" fill="#292723"/>
+            <path d="M92 78 Q100 88 108 78" stroke="#292723" stroke-width="2.5" fill="none"/>
+            <!-- Sun rays -->
+            <line x1="100" y1="20" x2="100" y2="28" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+            <line x1="100" y1="112" x2="100" y2="120" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+            <line x1="50" y1="70" x2="58" y2="70" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+            <line x1="142" y1="70" x2="150" y2="70" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+            <text x="50" y="130" font-family="'Patrick Hand', cursive" font-size="14" fill="#292723">sunny days ahead! ☀️</text>
+          </svg>
+        </div>
+        <h3 class="thumb-title">Chill Doodles</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Cozy weekend sketches with tea, cats, and sunshine.</p>
+        <div class="thumb-meta">
+          <span class="thumb-participants">👥 4 participants</span>
+          <span>2 hours ago</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.85rem;">
+          <a href="/room/CHILL-101" class="btn-sticker btn-blue btn-sm" style="flex: 1;">Open Notebook</a>
+        </div>
+      </div>
+
+      <!-- Featured Notebook Card 2 -->
+      <div class="notebook-thumb-card">
+        <div class="washi-tape washi-pink tape-top-right" style="width: 70px; height: 20px;"></div>
+        <div class="thumb-preview-box" style="height: 180px;">
+          <svg viewBox="0 0 200 140" class="thumb-canvas-svg">
+            <!-- Cute Bunny Doodle -->
+            <ellipse cx="100" cy="80" rx="30" ry="26" fill="#FFF" stroke="#292723" stroke-width="2.5"/>
+            <!-- Ears -->
+            <ellipse cx="88" cy="40" rx="8" ry="24" fill="#FCEEF8" stroke="#292723" stroke-width="2.5"/>
+            <ellipse cx="112" cy="40" rx="8" ry="24" fill="#FCEEF8" stroke="#292723" stroke-width="2.5"/>
+            <!-- Eyes & Nose -->
+            <circle cx="92" cy="76" r="3.5" fill="#292723"/>
+            <circle cx="108" cy="76" r="3.5" fill="#292723"/>
+            <polygon points="100,82 96,86 104,86" fill="#FF8066"/>
+            <!-- Hearts -->
+            <text x="35" y="45" font-size="16">💖</text>
+            <text x="145" y="55" font-size="16">✨</text>
+          </svg>
+        </div>
+        <h3 class="thumb-title">Random Chaos</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.75rem;">When nobody has a plan and everyone has pastel highlighters.</p>
+        <div class="thumb-meta">
+          <span class="thumb-participants">👥 6 participants</span>
+          <span>1 day ago</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.85rem;">
+          <a href="/room/CHAOS-88" class="btn-sticker btn-blue btn-sm" style="flex: 1;">Open Notebook</a>
+        </div>
+      </div>
+
+      <!-- Featured Notebook Card 3 -->
+      <div class="notebook-thumb-card">
+        <div class="washi-tape washi-green tape-top-left" style="width: 70px; height: 20px;"></div>
+        <div class="thumb-preview-box" style="height: 180px;">
+          <svg viewBox="0 0 200 140" class="thumb-canvas-svg">
+            <!-- Planet with rings -->
+            <circle cx="100" cy="70" r="28" fill="#6C9ED2" opacity="0.6"/>
+            <ellipse cx="100" cy="70" rx="46" ry="12" fill="none" stroke="#292723" stroke-width="2.5" transform="rotate(-20 100 70)"/>
+            <circle cx="100" cy="70" r="28" fill="none" stroke="#292723" stroke-width="2"/>
+            <!-- Stars -->
+            <text x="40" y="40" font-size="14">⭐</text>
+            <text x="150" y="35" font-size="16">🪐</text>
+            <text x="135" y="115" font-size="14">✨</text>
+            <text x="45" y="125" font-family="'Patrick Hand', cursive" font-size="13" fill="#292723">to the stars 🚀</text>
+          </svg>
+        </div>
+        <h3 class="thumb-title">Team Brainstorm</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Friday design ideas, sticker designs & feature maps.</p>
+        <div class="thumb-meta">
+          <span class="thumb-participants">👥 5 participants</span>
+          <span>3 days ago</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.85rem;">
+          <a href="/room/TEAM-FUN" class="btn-sticker btn-blue btn-sm" style="flex: 1;">Open Notebook</a>
+        </div>
+      </div>
+
+      <!-- Featured Notebook Card 4 -->
+      <div class="notebook-thumb-card">
+        <div class="washi-tape washi-coral tape-top-right" style="width: 70px; height: 20px;"></div>
+        <div class="thumb-preview-box" style="height: 180px;">
+          <svg viewBox="0 0 200 140" class="thumb-canvas-svg">
+            <!-- Birthday Cake -->
+            <rect x="65" y="65" width="70" height="45" rx="6" fill="#FCEEF8" stroke="#292723" stroke-width="2"/>
+            <path d="M65 75 Q75 85 85 75 Q95 85 105 75 Q115 85 125 75 Q135 85 135 75" stroke="#FF8066" stroke-width="3" fill="none"/>
+            <!-- Candle -->
+            <line x1="100" y1="48" x2="100" y2="65" stroke="#292723" stroke-width="3"/>
+            <ellipse cx="100" cy="42" rx="4" ry="7" fill="#F5D77A"/>
+            <text x="35" y="130" font-family="'Patrick Hand', cursive" font-size="15" fill="#292723">HAPPY BIRTHDAY! 🎉</text>
+          </svg>
+        </div>
+        <h3 class="thumb-title">Birthday Card</h3>
+        <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.75rem;">A collaborative card signed and doodled by 8 friends.</p>
+        <div class="thumb-meta">
+          <span class="thumb-participants">👥 8 participants</span>
+          <span>1 week ago</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.85rem;">
+          <a href="/room/BDAY-CARD" class="btn-sticker btn-blue btn-sm" style="flex: 1;">Open Notebook</a>
+        </div>
+      </div>
+
+      <!-- Active Rooms from Server if any -->
+      <% if (typeof activeRooms !== 'undefined' && activeRooms && activeRooms.length > 0) { %>
+        <% activeRooms.forEach(function(room) { %>
+          <div class="notebook-thumb-card">
+            <div class="washi-tape washi-green tape-top-left" style="width: 70px; height: 20px;"></div>
+            <div class="thumb-preview-box" style="height: 180px;">
+              <svg viewBox="0 0 200 140" class="thumb-canvas-svg">
+                <circle cx="100" cy="70" r="30" fill="#8EBB91" opacity="0.4"/>
+                <text x="100" y="75" font-family="'Patrick Hand', cursive" font-size="20" text-anchor="middle" fill="#292723"><%= room.id %></text>
+                <text x="100" y="120" font-family="'Patrick Hand', cursive" font-size="12" text-anchor="middle" fill="#77736A">Active Notebook</text>
+              </svg>
+            </div>
+            <h3 class="thumb-title"><%= room.name || 'Untitled Doodles' %></h3>
+            <p style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 0.75rem;"><%= room.description || 'Active real-time collaborative drawing room.' %></p>
+            <div class="thumb-meta">
+              <span class="thumb-participants">👥 <%= room.participantCount %> online</span>
+              <span><%= room.strokeCount %> strokes</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.85rem;">
+              <a href="/room/<%= room.id %>" class="btn-sticker btn-coral btn-sm" style="flex: 1;">Join Room (<%= room.id %>)</a>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+
+    </div>
+
+    <!-- LocalStorage Recent Notebooks Section -->
+    <div id="galleryRecentsWrap" style="margin-top: 4rem; display: none;">
+      <h2 style="font-family: var(--font-cursive); font-size: 2.25rem; font-weight: 700; margin-bottom: 1rem;">
+        Your Visited Notebooks
+      </h2>
+      <div id="galleryRecentsList" class="gallery-grid" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+        <!-- Rendered by client JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="doodle-footer">
+    <div class="doodle-container footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">doodlebook<span style="color: var(--color-coral);">.</span></span>
+        <span class="footer-tagline">Your friends. One notebook. Endless doodles.</span>
+      </div>
+      <div class="footer-links">
+        <a href="/" class="footer-link">Home</a>
+        <a href="/gallery" class="footer-link">Scrapbook Gallery</a>
+        <a href="/about" class="footer-link">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const wrap = document.getElementById('galleryRecentsWrap');
+      const list = document.getElementById('galleryRecentsList');
+      try {
+        const recents = JSON.parse(localStorage.getItem('doodle_recent_rooms') || '[]');
+        if (recents && recents.length > 0 && wrap && list) {
+          wrap.style.display = 'block';
+          list.innerHTML = '';
+          const nick = localStorage.getItem('doodle_nickname') || 'Guest';
+
+          recents.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'notebook-thumb-card';
+            card.innerHTML = `
+              <div class="washi-tape washi-blue tape-top-right" style="width: 60px; height: 18px;"></div>
+              <div class="thumb-preview-box" style="height: 120px;">
+                <span style="font-size: 2rem;">📓</span>
+              </div>
+              <h3 class="thumb-title">Room ${r.roomId}</h3>
+              <div class="thumb-meta" style="margin-bottom: 0.75rem;">
+                <span>Code: ${r.roomId}</span>
+                <span>Visited recently</span>
+              </div>
+              <a href="/room/${encodeURIComponent(r.roomId)}?nickname=${encodeURIComponent(nick)}" class="btn-sticker btn-blue btn-sm" style="text-align: center;">
+                Re-open Notebook →
+              </a>
+            `;
+            list.appendChild(card);
+          });
+        }
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>

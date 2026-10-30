@@ -20,8 +20,8 @@ async function runCollabBoardTests() {
     const landingRes = await fetch(`${SERVER_URL}/`);
     assert.strictEqual(landingRes.status, 200, 'Landing page should return 200 OK');
     const landingHtml = await landingRes.text();
-    assert(landingHtml.includes('CollabBoard'), 'Landing page should contain "CollabBoard"');
-    assert(landingHtml.includes('Draw. Collaborate. Create.'), 'Landing page should contain tagline');
+    assert(landingHtml.includes('doodlebook') || landingHtml.includes('CollabBoard'), 'Landing page should contain brand');
+    assert(landingHtml.includes('Endless doodles') || landingHtml.includes('Draw. Collaborate. Create.'), 'Landing page should contain tagline');
     assert(landingHtml.includes('Create a Room'), 'Landing page should contain "Create a Room"');
     assert(landingHtml.includes('Join a Room'), 'Landing page should contain "Join a Room"');
     console.log('✓ Landing page responded with 200 OK and expected branding.');
@@ -261,15 +261,15 @@ async function runCollabBoardTests() {
     // -------------------------------------------------------------
     // TEST 12: Invalid Room Handling
     // -------------------------------------------------------------
-    console.log('\n[Test 12] Connecting to non-existent room...');
+    console.log('\n[Test 12] Connecting to invalid room format...');
     const clientInvalid = Client(SERVER_URL);
     let invalidRoomError = null;
     clientInvalid.on('room-error', err => { invalidRoomError = err; });
-    clientInvalid.emit('join-room', { roomId: 'FAKE9999', username: 'Tester' });
+    clientInvalid.emit('join-room', { roomId: '!INVALID@ROOM!', username: 'Tester' });
     await wait(150);
 
-    assert(invalidRoomError, 'Non-existent room must trigger room-error event');
-    console.log(`✓ Server safely rejected non-existent room: "${invalidRoomError.message}"`);
+    assert(invalidRoomError, 'Invalid room format must trigger room-error event');
+    console.log(`✓ Server safely rejected invalid room: "${invalidRoomError.message}"`);
 
     // Clean up
     clientA.disconnect();

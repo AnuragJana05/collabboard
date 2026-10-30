@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: collabboard
+    name: doodlebook
     env: node
     plan: free
     buildCommand: npm install

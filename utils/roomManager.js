@@ -16,22 +16,22 @@ const crypto = require('crypto');
  */
 const rooms = new Map();
 
-// Preset distinct user avatar / stroke colors
+// Preset distinct user avatar / stroke colors (Doodlebook pastel & vibrant stationery accents)
 const USER_COLORS = [
-  '#3b82f6', // Blue
-  '#10b981', // Emerald
-  '#f59e0b', // Amber
-  '#ef4444', // Red
-  '#8b5cf6', // Violet
-  '#ec4899', // Pink
-  '#06b6d4', // Cyan
-  '#14b8a6', // Teal
-  '#f97316', // Orange
-  '#6366f1'  // Indigo
+  '#FF8066', // Coral
+  '#6C9ED2', // Notebook Blue
+  '#8EBB91', // Sage Green
+  '#D9A7CE', // Pastel Pink
+  '#F5D77A', // Butter Yellow
+  '#B7A4DD', // Lavender
+  '#FB923C', // Tangerine
+  '#2DD4BF', // Mint/Teal
+  '#F43F5E', // Rose
+  '#38BDF8'  // Sky
 ];
 
 /**
- * Generate a clean, readable Room ID (e.g., "CB-7K92M" or 6 alphanumeric characters)
+ * Generate a clean, readable Room ID (e.g., "7FK2A3" or 6 alphanumeric characters)
  */
 function generateRoomId() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude ambiguous chars like 0, O, 1, I
@@ -60,9 +60,11 @@ function pickUserColor(room) {
 /**
  * Create a new room
  * @param {string} [customId] - Optional custom room ID
+ * @param {string} [name] - Optional room name
+ * @param {string} [description] - Optional room description
  * @returns {object} The created room object
  */
-function createRoom(customId = null) {
+function createRoom(customId = null, name = 'Chill Doodles', description = '') {
   let roomId = customId ? customId.trim().toUpperCase() : generateRoomId();
 
   // If auto-generated and already exists, generate until unique
@@ -72,6 +74,8 @@ function createRoom(customId = null) {
 
   const room = {
     id: roomId,
+    name: (name || 'Chill Doodles').trim().slice(0, 50),
+    description: (description || '').trim().slice(0, 200),
     createdAt: Date.now(),
     users: new Map(),
     drawingData: [],
@@ -151,7 +155,7 @@ function removeUserFromRoom(roomId, socketId) {
 
   const remainingCount = room.users.size;
 
-  // If room is empty, schedule cleanup with a grace period (45 seconds)
+  // If room is empty, schedule cleanup with a grace period (20 minutes)
   // This prevents room deletion if a user refreshes or temporarily reconnects
   if (remainingCount === 0) {
     if (room.cleanupTimer) clearTimeout(room.cleanupTimer);
@@ -161,7 +165,7 @@ function removeUserFromRoom(roomId, socketId) {
       if (r && r.users.size === 0) {
         rooms.delete(room.id);
       }
-    }, 45000);
+    }, 1200000); // 20 minutes
   }
 
   return { user, remainingCount };
@@ -227,6 +231,40 @@ function clearDrawingData(roomId) {
 }
 
 /**
+ * Undo last drawing stroke in room (by strokeId or last item)
+ * @param {string} roomId
+ * @param {string} [socketId]
+ * @returns {Array|null}
+ */
+function undoLastDrawing(roomId, socketId = null) {
+  const room = getRoom(roomId);
+  if (!room || room.drawingData.length === 0) return null;
+
+  if (socketId) {
+    for (let i = room.drawingData.length - 1; i >= 0; i--) {
+      if (room.drawingData[i].socketId === socketId) {
+        const targetStrokeId = room.drawingData[i].strokeId;
+        if (targetStrokeId) {
+          room.drawingData = room.drawingData.filter(s => s.strokeId !== targetStrokeId);
+        } else {
+          room.drawingData.splice(i, 1);
+        }
+        return room.drawingData;
+      }
+    }
+  }
+
+  const last = room.drawingData[room.drawingData.length - 1];
+  if (last && last.strokeId) {
+    const targetStrokeId = last.strokeId;
+    room.drawingData = room.drawingData.filter(s => s.strokeId !== targetStrokeId);
+  } else {
+    room.drawingData.pop();
+  }
+  return room.drawingData;
+}
+
+/**
  * Add a chat message to room history
  * @param {string} roomId 
  * @param {object} messageData 
@@ -283,6 +321,34 @@ function findRoomBySocketId(socketId) {
   return null;
 }
 
+/**
+ * Rename a room
+ * @param {string} roomId 
+ * @param {string} newName 
+ * @returns {boolean}
+ */
+function renameRoom(roomId, newName) {
+  const room = getRoom(roomId);
+  if (!room || !newName) return false;
+  room.name = newName.trim().slice(0, 50);
+  return true;
+}
+
+/**
+ * Get all active rooms metadata (for gallery and scrapbook discovery)
+ * @returns {Array<object>}
+ */
+function getAllActiveRooms() {
+  return Array.from(rooms.values()).map(r => ({
+    id: r.id,
+    name: r.name || 'Chill Doodles',
+    description: r.description || '',
+    participantCount: r.users.size,
+    strokeCount: r.drawingData.length,
+    createdAt: r.createdAt
+  }));
+}
+
 module.exports = {
   createRoom,
   getRoom,
@@ -293,7 +359,10 @@ module.exports = {
   addDrawingData,
   getDrawingData,
   clearDrawingData,
+  undoLastDrawing,
   addChatMessage,
   getChatMessages,
-  findRoomBySocketId
+  findRoomBySocketId,
+  renameRoom,
+  getAllActiveRooms
 };
